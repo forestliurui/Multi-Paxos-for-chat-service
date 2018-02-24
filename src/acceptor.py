@@ -8,7 +8,8 @@ class Acceptor(object):
      def __init__(self, server_id, servers_list):
          self.server_id = server_id
          self.proposers_list = dict(servers_list)
-
+         #if self.server_id == 0:
+         #   import pdb;pdb.set_trace()
          #remove itself from the acceptors list, because it doesn't need to communicate with itself
          del self.proposers_list[self.server_id]
          self.learners_list = self.proposers_list
@@ -20,7 +21,7 @@ class Acceptor(object):
          self.accepted_proposal_val = None
          
      def promise(self, recvd_msg):
-         if self.promised_proposal_id is None or :
+         if self.promised_proposal_id is None or recvd_msg['proposal_id'] >= self.promised_proposal_id:
             self.promised_proposal_id = recvd_msg['proposal_id']
             
             reply_msg = {'type': 'promise', 'accepted_id': self.accepted_proposal_id, 'accepted_val': self.accepted_proposal_val, 'proposal_id': recvd_msg['proposal_id']}
@@ -32,10 +33,10 @@ class Acceptor(object):
             sendMsg(host, port, reply_msg)
 
      def accept(self, recvd_msg):
-         if self.promised_proposal_id is None or recvd_msg['proposal_id'] >= self.promised_proposal_id::
+         if self.promised_proposal_id is None or recvd_msg['proposal_id'] >= self.promised_proposal_id:
             self.promised_proposal_id = recvd_msg['proposal_id']
             self.accepted_proposal_id = recvd_msg['proposal_id']
-            self.accepted_proposal_val = recvd_msg['proposal_val']
+            self.accepted_proposal_val = recvd_msg['val']
             reply_msg = {"type": "accept", 'proposal_id': self.accepted_proposal_id, 'val': self.accepted_proposal_val}
             self.sendToAllLearners(reply_msg)
 

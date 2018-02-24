@@ -2,14 +2,23 @@
 import socket
 import pickle
 
-HOST = 'bigdata.eecs.umich.edu'    # The remote host
-PORT = 50007              # The same port as used by the server
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((HOST, PORT))
-msg = {'type':'propose', 'val': 'this is our chat', 'id': 2}
-#s.sendall('Hello, world')
-s.sendall(pickle.dumps(msg))
-data = s.recv(1024)
-s.close()
-print(pickle.loads(data))
-#print 'Received', repr(data)
+from messenger import sendMsg
+
+def client():
+    host_name = 'bigdata.eecs.umich.edu'
+    servers_list = {idx:{'host': host_name, 'port': 50000+idx} for idx in range(5)}
+
+      
+
+    val = 'how are you'
+
+    msg = {'type': 'request', 'request_val': val, 'resend_idx': 0}
+    for server_id in servers_list:
+        host = servers_list[server_id]['host']
+        port = servers_list[server_id]['port']
+    
+        sendMsg(host, port, msg) 
+
+
+if __name__ == "__main__":
+   client()
