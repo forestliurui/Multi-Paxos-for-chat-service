@@ -6,6 +6,7 @@ import numpy as np
 from proposer import Proposer
 from acceptor import Acceptor
 from learner import Learner
+from messenger import print_message
 
 crash_rate = 0.01
 
@@ -17,6 +18,9 @@ def server(server_id, num_server, f = None):
     host_name = 'bigdata.eecs.umich.edu'
     servers_list = {idx:{'host': host_name, 'port': 50000+idx} for idx in range(num_server)}
 
+    #Ideally, quorum should be  len(servers_list)/2 + 1
+    #I choose len(servers_list)/2, because the current process only send message to other processes
+    #thus quorum assumes that itself has already been included 
     quorum = len(servers_list)/2
 
     proposer = Proposer(server_id, servers_list)
@@ -38,9 +42,9 @@ def server(server_id, num_server, f = None):
         if view%num_acceptors == server_id:
            server_crash(server_id, crash_rate)
 
-        print("wait for connection")
+        print_message("wait for connection")
         conn, addr = s.accept()
-        print 'Connected by', addr
+        print_message('Connected by '+str(addr))
         data = conn.recv(1024)
         msg = pickle.loads(data)      
 
@@ -86,7 +90,7 @@ def server(server_id, num_server, f = None):
 
 def server_crash(server_id, crash_rate):
     if np.random.rand() < crash_rate:
-       print("!!!!!!!!!!!!!!!!server id %s crashes"%(str(server_id)))
+       print_message("!!!!!!!!!!!!!!!!server id %s crashes"%(str(server_id)))
        exit()
 
 if __name__ == "__main__":

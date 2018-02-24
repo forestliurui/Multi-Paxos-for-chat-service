@@ -3,6 +3,7 @@ import socket
 import pickle
 
 from messenger import sendMsg
+from messenger import print_message
 
 timeout = 10
 
@@ -34,22 +35,22 @@ def client(client_idx):
             if waitForAck(client_host, client_port, timeout, clt_seq_num) is True:
                break
             elif resend_idx == resend_max-1:
-               print('give up on request_idx %s due to timeout on max resend times'%(str(request_idx)))
+               print_message('give up on request_idx %s due to timeout on max resend times'%(str(request_idx)))
 
 def waitForAck(client_host, client_port, timeout, clt_seq_num):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((client_host, client_port))
     s.listen(1)
     
-    print('set timeout for %s s'%str(timeout))
+    print_message('set timeout for %s s'%str(timeout))
     s.settimeout(timeout)
-    print("wait for ack")
+    print_message("wait for ack")
     try: 
        conn, addr = s.accept()
     except socket.timeout:
-       print("timeout on ack")
+       print_message("timeout on ack")
        return False
-    print 'Connected by', addr
+    print_message('Connected by '+str( addr))
     data = conn.recv(1024)
     msg = pickle.loads(data)
     conn.close()
@@ -59,7 +60,7 @@ def waitForAck(client_host, client_port, timeout, clt_seq_num):
     need to make sure how to handle this
     """
     if msg['type'] == 'ack' and msg['client_info']['clt_seq_num'] == clt_seq_num:
-       print('client %s received ack for request (clt seq num) %s'%(str(msg['client_info']['client_id']), str(msg['client_info']['clt_seq_num'])) )
+       print_message('client %s received ack for request (clt seq num) %s'%(str(msg['client_info']['client_id']), str(msg['client_info']['clt_seq_num'])) )
        return True
     else:
        return False

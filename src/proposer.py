@@ -5,6 +5,7 @@ import socket
 import pickle
 
 from messenger import sendMsg
+from messenger import print_message
 #need to make sure the acceptors_list doesn't include itself
 
 class Proposer(object):

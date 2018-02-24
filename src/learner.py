@@ -3,6 +3,7 @@ This is the Learner class
 """
 
 from messenger import sendMsg
+from messenger import print_message
 
 class Learner(object):
      def __init__(self, server_id, quorum, log = None):
@@ -56,9 +57,9 @@ class Learner(object):
          self.log.append(commit_val)
          msg = {'type': 'ack', 'val': commit_val, 'client_info': client_info}
          sendMsg(client_host, client_port, msg)
-         print("==========================learner id %s commit the value: %s"%(str(self.learner_id),str(commit_val)))
-         print("++++++++++++++++++++++++++learner id %s commit values:"%(str(self.learner_id)))
-         print(self.log)
+         print_message("==========================learner id %s commit the value: %s"%(str(self.learner_id),str(commit_val)))
+         print_message("++++++++++++++++++++++++++learner id %s commit values:"%(str(self.learner_id)))
+         print_message(self.log)
 
      def writeToLog(self, val, slot):
          self.log[slot] = val

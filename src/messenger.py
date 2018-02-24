@@ -15,8 +15,8 @@ def sendMsg(host, port, msg):
     time.sleep(delay)
   
     if messageLoss(loss_rate) is True:
-       print("lose message for")
-       print(msg)
+       print_message("lose message for: "+str(msg))
+       
        return
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)   
@@ -25,7 +25,7 @@ def sendMsg(host, port, msg):
     except socket.error:
        print_message("listening port closed, ignore this msg")
        return 
-    print(msg)
+    print_message("send: "+ str(msg))
     s.sendall(pickle.dumps(msg))
     s.close()
 

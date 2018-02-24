@@ -3,6 +3,7 @@ This is the class for acceptor
 """
 import socket
 from messenger import sendMsg
+from messenger import print_message
 
 class Acceptor(object):
      def __init__(self, server_id, servers_list):
