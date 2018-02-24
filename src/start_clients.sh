@@ -1,6 +1,8 @@
 #!/bin/bash
 
-for ((i=0;i<5;i=i+1))
+client_num=7
+
+for ((i=0;i<${client_num};i=i+1))
 do
     echo "start client process: ${i}"
     python client.py ${i} &

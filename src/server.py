@@ -1,17 +1,21 @@
 # Echo server program
 import socket
 import pickle
+import numpy as np
 
 from proposer import Proposer
 from acceptor import Acceptor
 from learner import Learner
 
-def server(server_id, f = None):
+crash_rate = 0.01
+
+def server(server_id, num_server, f = None):
 
     server_id = int(server_id) 
+    num_server = int(num_server)
 
     host_name = 'bigdata.eecs.umich.edu'
-    servers_list = {idx:{'host': host_name, 'port': 50000+idx} for idx in range(5)}
+    servers_list = {idx:{'host': host_name, 'port': 50000+idx} for idx in range(num_server)}
 
     quorum = len(servers_list)/2
 
@@ -29,6 +33,11 @@ def server(server_id, f = None):
     s.listen(1)
  
     while True:
+        
+        #try to crash
+        if view%num_acceptors == server_id:
+           server_crash(server_id, crash_rate)
+
         print("wait for connection")
         conn, addr = s.accept()
         print 'Connected by', addr
@@ -74,6 +83,11 @@ def server(server_id, f = None):
                 learner.commit()
                       
         conn.close()
+
+def server_crash(server_id, crash_rate):
+    if np.random.rand() < crash_rate:
+       print("!!!!!!!!!!!!!!!!server id %s crashes"%(str(server_id)))
+       exit()
 
 if __name__ == "__main__":
     from optparse import OptionParser, OptionGroup

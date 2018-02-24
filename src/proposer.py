@@ -49,7 +49,7 @@ class Proposer(object):
         self.msg_collection[proposal_id].append(msg) 
 
     def checkQuorumSatisfied(self):
-        if self.proposal_count[self.proposal_id] >= self.quorum:
+        if self.proposal_id in self.proposal_count and self.proposal_count[self.proposal_id] >= self.quorum:
            return True
         else:
            return False

@@ -9,8 +9,8 @@ timeout = 10
 def client(client_idx):
 
     host_name = 'bigdata.eecs.umich.edu'
-    servers_list = {idx:{'host': host_name, 'port': 50000+idx} for idx in range(5)}
-    clients_list = {idx:{'host': host_name, 'port': 40000+idx} for idx in range(5)}
+    servers_list = {idx:{'host': host_name, 'port': 50000+idx} for idx in range(50)}
+    clients_list = {idx:{'host': host_name, 'port': 40000+idx} for idx in range(50)}
       
     client_idx = int(client_idx)
     client_host = clients_list[client_idx]['host']

@@ -37,6 +37,6 @@ def messageLoss(loss_rate):
 
 def print_message(message = ""):
     timestamp = datetime.datetime.now().isoformat(" ").split(".")[0]
-    print(timestamp + " INFO " + message) 
+    print(timestamp + " INFO " + str(message)) 
 
 
