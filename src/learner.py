@@ -9,9 +9,13 @@ class Learner(object):
          self.maxCount = 0
          self.valForMaxCount = None
          self.quorum = quorum
-         
+        
+         self.proposal_id = None 
 
-     def countVote(self, msg):
+     def addVote(self, msg):
+         if msg['proposal_id'] < self.proposal_id:
+             return
+
          if msg['val'] not in self.count:
              self.count[msg['val']] = 1
          else:

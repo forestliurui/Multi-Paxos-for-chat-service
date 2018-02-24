@@ -3,6 +3,8 @@ This is the proposer class
 """
 import socket
 import pickle
+
+from messenger import sendMsg
 #need to make sure the acceptors_list doesn't include itself
 
 class Proposer(object):
@@ -13,55 +15,61 @@ class Proposer(object):
          #remove itself from the acceptors list, because it doesn't need to communicate with itself
          del self.acceptors_list[self.server_id]
          self.quorum = len(self.acceptors_list)/2     
+         
+         self.proposal_id = None
+         self.proposal_count = {}
+         self.msg_collection = {}
 
-    def tryGetElected(self, proposer_id):
-        socket_dict = {}
+    def prepare(self, proposal_id):
+        #propose_id is always increasing
+        self.proposal_id = proposal_id
+        msg = {'type': 'prepare', 'proposal_id': proposal_id, 'proposer_id': self.server_id}
         for acceptor_id in self.acceptors_list:
-            msg = {'type': 'prepare', 'proposer_id': proposer_id}
-            s = self.sendMsg(acceptor_id, msg)
-            socket_dict[acceptor_id] = s
+            host = self.acceptors_list[acceptor_id]['host']
+            port = self.acceptors_list[acceptor_id]['port']
+            sendMsg(host, port, msg)
 
-        vote_num = 0
-        msg_list = []
-        for acceptor_id in self.acceptors_list:
-            msg = self.recvMsg(acceptor_id, )
-            if msg['type'] = "promise":
-               msg_list.append(msg)
-               vote_num += 1
+    def addVote(self, msg): 
+        proposal_id = msg['proposal_id']
+        if proposal_id != self.proposal_id:
+           #the received proposal_id is not the same as the current one
+           return 
 
-        if vote_num >= self.quorum:
-           proposer_val = self.getValWithLargestProposerID(msg_list)
-           return True, proposer_val  #get elected as leader
+        if proposal_id not in self.proposal_count:
+           self.proposal_count[proposal_id] = 1
         else:
-           return False, None #not elected
+           self.proposal_count[proposal_id] += 1
 
-    def recvMsg(self, acceptor_id, s):
-        
+        if proposal_id not in self.msg_collection:
+           self.msg_collection[proposal_id] = []
+        self.msg_collection[proposal_id].append(msg) 
 
-    def sendMsg(self, acceptor_id, msg):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        host = self.acceptors_list[acceptor_id]['host']
-        port = self.acceptors_list[acceptor_id]['port']
-        s.connect((host, port))
-        s.sendall(pickle.dumps(msg))
+    def checkQuorumSatisfied(self):
+        if self.proposal_count[self.proposal_id] >= self.quorum:
+           return True
+        else:
+           return False
 
-        return s
-
-    def getValWithLargestProposerID(self, msg_list):
-        largest_id = None
-        proposer_val = None
+    def getValWithLargestAcceptedID(self):
+        msg_list = self.msg_collection[self.proposal_id]
+        largest_accepted_id = None
+        accepted_val_with_largest_id = None
  
         for msg in msg_list:
-            if largest_id is None or msg['proposer_id'] >= largest_id:
-                if msg['proposer_id'] == largest_id:
-                    if proposer_val != msg['val']:
-                        raise ValueError("Different value from the same proposers with id %d"%largest_id)
-                largest_id = msg['proposer_id']
-                proposer_val = msg['proposer_val']
-        return propose_val
+          if msg['accepted_id'] is not None:
+            if largest_accepted_id is None or msg['accepted_id'] >= largest_accepted_id:
+                if msg['accepted_id'] == largest_accepted_id:
+                    if accepted_val_with_largest_id != msg['accepted_val']:
+                        raise ValueError("Different accepted values from accepted id: %d"%largest_accepted_id)
+                largest_accepted_id = msg['accepted_id']
+                accepted_val_with_largest_id = msg['accepted_val']
+        return accepted_val_with_largest_id
 
-    def propose(self, proposer_id, val):
-        for acceptor in self.acceptors_list:
-            msg = {"type": "propose", 'proposer_id': proposer_id, 'val': val }
-            self.sendMsg(acceptor, msg)
+    def propose(self, val):
+        msg = {"type": "propose", 'proposal_id': self.proposal_id, 'val': val, 'proposer_id': self.server_id }
+        for acceptor_id in self.acceptors_list:
+            host = self.acceptors_list[acceptor_id]['host']
+            port = self.acceptors_list[acceptor_id]['port']
+
+            sendMsg(host, port, msg)
 

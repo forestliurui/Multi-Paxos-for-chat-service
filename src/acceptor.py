@@ -2,48 +2,47 @@
 This is the class for acceptor
 """
 import socket
+from messenger import sendMsg
 
 class Acceptor(object):
-     def __init__(self, host, port, learners_list):
-         self.learners_list = learners_list
-         self.host = host
-         self.port = port
-         self.promised_proposer_id = None
-         self.accepted_proposer_val = None
+     def __init__(self, server_id, servers_list):
+         self.server_id = server_id
+         self.proposers_list = dict(servers_list)
 
-     def waitForConnection(self):
-         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-         s.bind((self.host, self.port))
-         s.listen(1)
-         conn, addr = s.accept()
-         print("Connected by "+ addr)
+         #remove itself from the acceptors list, because it doesn't need to communicate with itself
+         del self.proposers_list[self.server_id]
+         self.learners_list = self.proposers_list
 
+         #self.host = host
+         #self.port = port
+         self.promised_proposal_id = None
+         self.accepted_proposal_id = None
+         self.accepted_proposal_val = None
          
-         data = conn.recv(1024)
-         
-         if data['type'] == "prepare": 
-             self.promise(conn, data)
-         elif data['type'] == "propose":
-             self.accept(data)
-         conn.close()
-         
-     def promise(self, conn, recvd_msg):
-         if self.promised_proposer_id is None:
-            self.promised_proposer_id = recvd_msg['proposer_id']
+     def promise(self, recvd_msg):
+         if self.promised_proposal_id is None or :
+            self.promised_proposal_id = recvd_msg['proposal_id']
             
-            reply_msg = {"type": "promise", 'proposer_id': None, 'proposer_val': None}
-            conn.sendall(reply_msg)
+            reply_msg = {'type': 'promise', 'accepted_id': self.accepted_proposal_id, 'accepted_val': self.accepted_proposal_val, 'proposal_id': recvd_msg['proposal_id']}
 
-         elif recvd_msg['proposer_id'] >= self.current_proposer_id:
-            reply_msg = {"type": "promise", 'proposer_id': self.promised_proposer_id, 'proposer_val': self.accepted_proposer_val}
-            self.promised_proposer_id = recvd_msg['proposer_id']
-            
-            conn.sendall(reply_msg)
+            proposer_id = recvd_msg['proposer_id']
+            host = self.proposers_list[proposer_id]['host'] 
+            port = self.proposers_list[proposer_id]['port']
+
+            sendMsg(host, port, reply_msg)
 
      def accept(self, recvd_msg):
-         if self.promised_proposer_id is None or recvd_msg['proposer_id'] >= self.current_proposer_id::
-            self.promised_proposer_id = recvd_msg['proposer_id']
-            self.accepted_proposer_val = recvd_msg['proposer_val']
-            reply_msg = {"type": "accept", 'proposer_id': self.promised_proposer_id, 'proposer_val': self.accepted_proposer_val}
+         if self.promised_proposal_id is None or recvd_msg['proposal_id'] >= self.promised_proposal_id::
+            self.promised_proposal_id = recvd_msg['proposal_id']
+            self.accepted_proposal_id = recvd_msg['proposal_id']
+            self.accepted_proposal_val = recvd_msg['proposal_val']
+            reply_msg = {"type": "accept", 'proposal_id': self.accepted_proposal_id, 'val': self.accepted_proposal_val}
             self.sendToAllLearners(reply_msg)
+
+     def sendToAllLearners(self, msg):
+         for learner_id in self.learners_list:
+             host = self.learners_list[learner_id]['host']
+             port = self.learners_list[learner_id]['port']
          
+             sendMsg(host, port, msg)
+

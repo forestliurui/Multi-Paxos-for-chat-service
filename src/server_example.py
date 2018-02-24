@@ -1,5 +1,6 @@
 # Echo server program
 import socket
+import pickle
 
 def server(server_id, host, port, f):
 
@@ -23,14 +24,18 @@ def server(server_id, host, port, f):
         print("wait for connection")
         conn, addr = s.accept()
         print 'Connected by', addr
-        msg = conn.recv(1024)
-    
+        data = conn.recv(1024)
+        msg = pickle.loads(data)      
+
         if msg['type'] = 'request':
            if msg['resend_idx'] != 0:
               #if this is an resent message, triger view change
               view += 1
            if view%num_acceptors == server_id:
                 #this is leader
+                request_val = msg['request_val']
+                proposer.prepare(view)
+                """
                 election_result, proposer_val  = proposer.tryGetElected()
                 if election_result is True:
                     #get elected
@@ -38,14 +43,24 @@ def server(server_id, host, port, f):
                         proposer_val = msg["proposer_val"]
                     #proposer a value
                     proposer.propose(proposer_val)
+                """
+        elif msg['type'] == 'promise':
+             proposer.addVote(msg)
+             if proposer.checkQuorumSatisfied() is True:
+                 accepted_val = proposer.getValWithLargestAcceptedID() 
+                 if accepted_val is not None:
+                     proposer.propose(accepted_val)
+                 else:
+                     proposer.propose(request_val)
+
         elif msg['type'] == 'prepare':
-            acceptor.promise(conn, msg)
+            acceptor.promise(msg)
 
         elif msg['type'] == 'propose':
             acceptor.accept(msg)
 
         elif msg['type'] == 'accept':
-            learner.countVote(msg)
+            learner.addVote(msg)
             if learner.checkQuorumSatisfied() is True:
                 learner.commit()
                       
