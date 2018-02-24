@@ -17,7 +17,7 @@ def server(server_id, f = None):
 
     proposer = Proposer(server_id, servers_list)
     acceptor = Acceptor(server_id, servers_list)
-    learner = Learner(quorum)
+    learner = Learner(server_id, quorum)
 
     view = 0
     num_acceptors = len(servers_list)
@@ -42,6 +42,7 @@ def server(server_id, f = None):
            if view%num_acceptors == server_id:
                 #this is leader
                 request_val = msg['request_val']
+                client_info = msg['client_info']
                 proposer.prepare(view)
                 """
                 election_result, proposer_val  = proposer.tryGetElected()
@@ -57,9 +58,9 @@ def server(server_id, f = None):
              if proposer.checkQuorumSatisfied() is True:
                  accepted_val = proposer.getValWithLargestAcceptedID() 
                  if accepted_val is not None:
-                     proposer.propose(accepted_val)
+                     proposer.propose(accepted_val, client_info)
                  else:
-                     proposer.propose(request_val)
+                     proposer.propose(request_val, client_info)
 
         elif msg['type'] == 'prepare':
             acceptor.promise(msg)

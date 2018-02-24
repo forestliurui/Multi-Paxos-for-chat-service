@@ -69,13 +69,13 @@ class Proposer(object):
                 accepted_val_with_largest_id = msg['accepted_val']
         return accepted_val_with_largest_id
 
-    def propose(self, val):
+    def propose(self, val, client_info):
         if self.proposed_id is not None and self.proposal_id <= self.proposed_id:
            #no need to propose again
            return
 
         self.proposed_id = self.proposal_id
-        msg = {"type": "propose", 'proposal_id': self.proposal_id, 'val': val, 'proposer_id': self.server_id }
+        msg = {"type": "propose", 'proposal_id': self.proposal_id, 'val': val, 'proposer_id': self.server_id, 'client_info': client_info }
         for acceptor_id in self.acceptors_list:
             host = self.acceptors_list[acceptor_id]['host']
             port = self.acceptors_list[acceptor_id]['port']

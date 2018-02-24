@@ -3,6 +3,7 @@ implement messenger
 """
 import socket
 import pickle
+import datetime
 
 import time
 import numpy as np
@@ -19,7 +20,11 @@ def sendMsg(host, port, msg):
        return
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)   
-    s.connect((host, port))
+    try:
+        s.connect((host, port))
+    except socket.error:
+       print_message("listening port closed, ignore this msg")
+       return 
     print(msg)
     s.sendall(pickle.dumps(msg))
     s.close()
@@ -29,4 +34,9 @@ def messageLoss(loss_rate):
        return True
     else:
        return False
+
+def print_message(message = ""):
+    timestamp = datetime.datetime.now().isoformat(" ").split(".")[0]
+    print(timestamp + " INFO " + message) 
+
 

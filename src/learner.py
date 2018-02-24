@@ -2,14 +2,17 @@
 This is the Learner class
 """
 
+from messenger import sendMsg
+
 class Learner(object):
-     def __init__(self, quorum, log = None):
-         self.log = log
+     def __init__(self, server_id, quorum, log = None):
+         self.log = []
          self.accept_count = {}
          self.maxCount = 0
          self.valForMaxCount = None
          self.quorum = quorum
-        
+         self.learner_id = server_id        
+
          self.msg_collection = {}
          self.proposal_id = None 
 
@@ -47,7 +50,15 @@ class Learner(object):
              return
          self.committed_id = self.proposal_id
          commit_val = self.msg_collection[self.proposal_id][0]['val']
-         print("==========================commit the value: %s"%(str(commit_val)))
+         client_info = self.msg_collection[self.proposal_id][0]['client_info']
+         client_host = client_info['client_host']
+         client_port = client_info['client_port']
+         self.log.append(commit_val)
+         msg = {'type': 'ack', 'val': commit_val, 'client_info': client_info}
+         sendMsg(client_host, client_port, msg)
+         print("==========================learner id %s commit the value: %s"%(str(self.learner_id),str(commit_val)))
+         print("++++++++++++++++++++++++++learner id %s commit values:"%(str(self.learner_id)))
+         print(self.log)
 
      def writeToLog(self, val, slot):
          self.log[slot] = val
