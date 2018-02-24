@@ -47,7 +47,7 @@ class Learner(object):
              return
          self.committed_id = self.proposal_id
          commit_val = self.msg_collection[self.proposal_id][0]['val']
-         print("commit the value: %s"%(str(commit_val)))
+         print("==========================commit the value: %s"%(str(commit_val)))
 
      def writeToLog(self, val, slot):
          self.log[slot] = val
