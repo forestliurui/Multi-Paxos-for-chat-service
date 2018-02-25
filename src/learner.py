@@ -85,7 +85,8 @@ class Learner(object):
          print_message("==========================learner id %s decide the value: %s"%(str(self.learner_id),str(decided_val)))
          print_message("++++++++++++++++++++++++++learner id %s decide values:"%(str(self.learner_id)))
          print_message(self.decided_log)
-
+         self.execute()
+ 
      def execute(self):
          if len(self.executed_log) == 0:
              next_unexecuted_slot_idx = 0
@@ -94,7 +95,7 @@ class Learner(object):
          while next_unexecuted_slot_idx in self.decided_log:
               self.executed_log[next_unexecuted_slot_idx] = self.decided_log[next_unexecuted_slot_idx]
               next_unexecuted_slot_idx += 1
-
+         print_message("<<<<<<<<<<<<<<<<<<<<<<learner id %s executed values: %s"%(str(self.learner_id), str(self.executed_log)))
 
 
 

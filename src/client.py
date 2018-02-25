@@ -18,7 +18,7 @@ def client(client_idx):
     client_port = clients_list[client_idx]['port']
 
     request_size = 5
-    request_list = ['client %s; request (clt seq num) %s: HAY'%(str(client_idx), str(request_idx) ) for request_idx in range(request_size) ]
+    request_list = ['client, seq: (%s, %s)'%(str(client_idx), str(request_idx) ) for request_idx in range(request_size) ]
     resend_max = 5
     for request_idx in range(len(request_list)):
         clt_seq_num = request_idx
@@ -40,7 +40,7 @@ def client(client_idx):
 def waitForAck(client_host, client_port, timeout, clt_seq_num):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((client_host, client_port))
-    s.listen(1)
+    s.listen(100)
     
     print_message('set timeout for %s s'%str(timeout))
     s.settimeout(timeout)
@@ -51,7 +51,7 @@ def waitForAck(client_host, client_port, timeout, clt_seq_num):
        print_message("timeout on ack")
        return False
     print_message('Connected by '+str( addr))
-    data = conn.recv(1024)
+    data = conn.recv(4096*2)
     msg = pickle.loads(data)
     conn.close()
 

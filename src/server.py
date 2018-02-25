@@ -2,6 +2,7 @@
 import socket
 import pickle
 import numpy as np
+import collections
 
 from proposer import Proposer
 from acceptor import Acceptor
@@ -34,8 +35,11 @@ def server(server_id, num_server, f = None):
     PORT = servers_list[server_id]['port']             # Arbitrary non-privileged port
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((HOST, PORT))
-    s.listen(1)
+    s.listen(100)
  
+    request_val_queue = collections.deque()
+    client_info_queue = collections.deque()
+
     while True:
         
         #try to crash
@@ -44,20 +48,21 @@ def server(server_id, num_server, f = None):
 
         print_message("wait for connection")
         conn, addr = s.accept()
-        print_message('Connected by '+str(addr))
-        data = conn.recv(1024)
+        print_message('Connection by '+str(addr))
+        data = conn.recv(4096*2)
         msg = pickle.loads(data)      
+        print_message('Connection received '+str(msg))
 
         if msg['type'] == 'request':
            if msg['resend_idx'] != 0:
               #if this is an resent message, triger view change
               view += 1
               proposer.need_prepare = True
-
+              print_message("change to view %s"%(str(view)))
            if view%num_acceptors == server_id:
                 #this is leader
-                request_val = msg['request_val']
-                client_info = msg['client_info']
+                request_val_queue.append( msg['request_val'] )
+                client_info_queue.append( msg['client_info'] )
                 if proposer.need_prepare is True:
                     proposer.prepare(view)
                     proposer.need_prepare = False
@@ -73,8 +78,11 @@ def server(server_id, num_server, f = None):
         elif msg['type'] == 'promise':
              proposer.addVote(msg)
              if proposer.checkQuorumSatisfied() is True:
-                 proposal_pack_for_holes = proposer.getProposalPackForHoles(learner.getDecidedLog())
-                 proposal_pack = proposer.addNewRequest(proposal_pack_for_holes, request_val, client_info)  
+                 proposal_pack = proposer.getProposalPackForHoles(learner.getDecidedLog())
+                 for _ in range(len(request_val_queue)):
+                     request_val = request_val_queue.popleft()
+                     client_info = client_info_queue.popleft()
+                     proposal_pack = proposer.addNewRequest(proposal_pack, request_val, client_info)  
                  proposer.propose(proposal_pack)
 
         elif msg['type'] == 'prepare':

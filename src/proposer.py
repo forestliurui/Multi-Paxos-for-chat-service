@@ -81,7 +81,7 @@ class Proposer(object):
             if slot_idx not in decided_log:
               #the proposer doesn't know about the decided val for this slot
               if slot_idx not in largest_accepted_id or accepted_id >= largest_accepted_id[slot_idx]:
-                if accepted_id == largest_accepted_id[slot_idx]:
+                if slot_idx in largest_accepted_id and  accepted_id == largest_accepted_id[slot_idx]:
                     if accepted_val_with_largest_id[slot_idx] != accepted_id:
                         raise ValueError("Different accepted values from accepted id: %d for slot %d"%(largest_accepted_id[slot_idx], slot_idx))
                 largest_accepted_id[slot_idx] = accepted_id
