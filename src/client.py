@@ -5,7 +5,7 @@ import pickle
 from messenger import sendMsg
 from messenger import print_message
 
-timeout = 120
+timeout = 600
 
 def client(client_idx):
 
@@ -42,28 +42,41 @@ def waitForAck(client_host, client_port, timeout, clt_seq_num):
     s.bind((client_host, client_port))
     s.listen(100)
     
-    print_message('set timeout for %s s'%str(timeout))
-    s.settimeout(timeout)
-    print_message("wwwwwwwwwwwwwwwait for ack")
-    try: 
-       conn, addr = s.accept()
-    except socket.timeout:
-       print_message("timeout on ack")
-       return False
-    print_message('Connected by '+str( addr))
-    data = conn.recv(4096*2)
-    msg = pickle.loads(data)
-    conn.close()
+
+    while True:
+       print_message('set timeout for %s s'%str(timeout))
+       s.settimeout(timeout)
+       print_message("wwwwwwwwwwwwwwwait for ack")
+       try: 
+          conn, addr = s.accept()
+       except socket.timeout:
+          print_message("timeout on ack")
+          return False
+       print_message('Connected by '+str( addr))
+       data = conn.recv(4096*2)
+       msg = pickle.loads(data)
+       print_message('Connection received '+str(msg))
+       conn.close()
+
+       #wait for the right clt_seq_num
+       if msg['type'] == 'ack' and msg['client_info']['clt_seq_num'] == clt_seq_num:
+           print_message('client %s received ack for request (clt seq num) %s'%(str(msg['client_info']['client_id']), str(msg['client_info']['clt_seq_num'])) )
+           return True
+
+
+    
+
+
 
     """
     note that the ack might means the committed value is different from its requested value
     need to make sure how to handle this
     """
-    if msg['type'] == 'ack' and msg['client_info']['clt_seq_num'] == clt_seq_num:
-       print_message('client %s received ack for request (clt seq num) %s'%(str(msg['client_info']['client_id']), str(msg['client_info']['clt_seq_num'])) )
-       return True
-    else:
-       return False
+    #if msg['type'] == 'ack' and msg['client_info']['clt_seq_num'] == clt_seq_num:
+    #   print_message('client %s received ack for request (clt seq num) %s'%(str(msg['client_info']['client_id']), str(msg['client_info']['clt_seq_num'])) )
+    #   return True
+    #else:
+    #   return False
 
 
 if __name__ == "__main__":

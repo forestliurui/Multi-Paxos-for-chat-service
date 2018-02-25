@@ -54,7 +54,7 @@ def server(server_id, num_server, f = None):
         print_message('Connection received '+str(msg))
 
         if msg['type'] == 'request':
-           if msg['resend_idx'] != 0:
+           if msg['resend_idx'] != 0 or forceViewChange(msg):
               #if this is an resent message, triger view change
               view += 1
               proposer.need_prepare = True
@@ -89,14 +89,14 @@ def server(server_id, num_server, f = None):
         elif msg['type'] == 'promise':
              proposer.addVote(msg)
              if proposer.checkQuorumSatisfied() is True:
-                 proposer.need_prepare = False
-                 proposal_pack = proposer.getProposalPackForHoles(learner.getDecidedLog())
-                 for _ in range(len(request_val_queue)):
-                     request_val = request_val_queue.popleft()
-                     client_info = client_info_queue.popleft()
-                     proposal_pack = proposer.addNewRequest(proposal_pack, request_val, client_info)  
-                 proposer.propose(proposal_pack)
-
+                if proposer.need_prepare is True:
+                    proposal_pack = proposer.getProposalPackForHoles(learner.getDecidedLog())
+                    for _ in range(len(request_val_queue)):
+                        request_val = request_val_queue.popleft()
+                        client_info = client_info_queue.popleft()
+                        proposal_pack = proposer.addNewRequest(proposal_pack, request_val, client_info)  
+                    proposer.propose(proposal_pack)
+                proposer.need_prepare = False
         elif msg['type'] == 'prepare':
             acceptor.promise(msg)
 
@@ -115,6 +115,13 @@ def server_crash(server_id, crash_rate):
     if np.random.rand() < crash_rate:
        print_message("!!!!!!!!!!!!!!!!server id %s crashes"%(str(server_id)))
        exit()
+
+def forceViewChange(msg):
+    client_info = msg['client_info']
+    if client_info['client_id'] == 0 and client_info['clt_seq_num'] == 3:
+       return True
+    else:
+       return False
 
 if __name__ == "__main__":
     from optparse import OptionParser, OptionGroup
