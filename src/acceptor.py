@@ -26,7 +26,7 @@ class Acceptor(object):
          if self.promised_proposal_id is None or recvd_msg['proposal_id'] >= self.promised_proposal_id:
             self.promised_proposal_id = recvd_msg['proposal_id']
             
-            reply_msg = {'type': 'promise', 'accepted_id': self.accepted_proposal_id, 'accepted_val': self.accepted_proposal_val, 'accepted_client_info': self.accepted_client_info, 'proposal_id': recvd_msg['proposal_id']}
+            reply_msg = {'type': 'promise', 'accepted_id': self.accepted_proposal_id, 'accepted_val': self.accepted_proposal_val, 'accepted_client_info': self.accepted_client_info, 'proposal_id': recvd_msg['proposal_id'], 'acceptor_id': self.server_id}
 
             proposer_id = recvd_msg['proposer_id']
             host = self.proposers_list[proposer_id]['host'] 

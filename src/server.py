@@ -65,7 +65,18 @@ def server(server_id, num_server, f = None):
                 client_info_queue.append( msg['client_info'] )
                 if proposer.need_prepare is True:
                     proposer.prepare(view)
-                    proposer.need_prepare = False
+                    #proposer.need_prepare = False
+        
+                else: #directly propose without prepare stage
+                    proposal_pack = {}
+                    print_message("no need to prepare")
+                    print_message(request_val_queue)
+                    for _ in range(len(request_val_queue)):
+                        request_val = request_val_queue.popleft()
+                        client_info = client_info_queue.popleft()
+                        proposal_pack = proposer.addNewRequest(proposal_pack, request_val, client_info)
+                    proposer.propose(proposal_pack, without_prepare = True)
+
                 """
                 election_result, proposer_val  = proposer.tryGetElected()
                 if election_result is True:
@@ -78,6 +89,7 @@ def server(server_id, num_server, f = None):
         elif msg['type'] == 'promise':
              proposer.addVote(msg)
              if proposer.checkQuorumSatisfied() is True:
+                 proposer.need_prepare = False
                  proposal_pack = proposer.getProposalPackForHoles(learner.getDecidedLog())
                  for _ in range(len(request_val_queue)):
                      request_val = request_val_queue.popleft()

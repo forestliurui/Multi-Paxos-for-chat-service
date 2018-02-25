@@ -53,17 +53,28 @@ class Learner(object):
          #self.committed_id = None
          self.decided_id = None
          self.slots = {}
+         self.decided_clt_seq = {}
 
      def getDecidedLog(self):
          return dict(self.decided_log)
          
      def addVote(self, msg, slot_idx):
+  
+         #avoid adding the same request (clt_seq_num) from the same client
+         client_id =  msg['client_info']['client_id']
+         client_seq =  msg['client_info']['clt_seq_num']
+
+         if client_id in self.decided_clt_seq and self.decided_clt_seq[client_id] >= client_seq:
+             return
+             
          if slot_idx not in self.slots:
               self.slots[slot_idx] = Slot(slot_idx, self.quorum)
 
          self.slots[slot_idx].addVote(msg)
     
      def checkQuorumSatisfied(self, slot_idx):
+         if slot_idx not in self.slots:
+            return False
          return self.slots[slot_idx].checkQuorumSatisfied()
 
      def decide(self, slot_idx):
@@ -76,10 +87,13 @@ class Learner(object):
          self.slots[slot_idx].decided_id = self.slots[slot_idx].proposal_id
          decided_val = self.slots[slot_idx].msg_collection[self.slots[slot_idx].proposal_id][0]['val']
          client_info = self.slots[slot_idx].msg_collection[self.slots[slot_idx].proposal_id][0]['client_info']
-         client_host = client_info['client_host']
-         client_port = client_info['client_port']
          self.decided_log[slot_idx] = decided_val
          if decided_val != 'noop':
+            client_host = client_info['client_host']
+            client_port = client_info['client_port']
+            client_id = client_info['client_id']
+            client_seq = client_info['clt_seq_num']
+            self.decided_clt_seq[client_id] = client_seq
             msg = {'type': 'ack', 'val': decided_val, 'client_info': client_info}
             sendMsg(client_host, client_port, msg)
          print_message("==========================learner id %s decide the value: %s"%(str(self.learner_id),str(decided_val)))

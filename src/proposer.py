@@ -44,17 +44,20 @@ class Proposer(object):
            #the received proposal_id is not the same as the current one
            return 
 
+        acceptor_id = msg['acceptor_id']
         if proposal_id not in self.proposal_count:
-           self.proposal_count[proposal_id] = 1
-        else:
-           self.proposal_count[proposal_id] += 1
+           self.proposal_count[proposal_id] = {}
+ 
+        self.proposal_count[proposal_id][acceptor_id] = True
+
+     
 
         if proposal_id not in self.msg_collection:
            self.msg_collection[proposal_id] = []
         self.msg_collection[proposal_id].append(msg) 
 
     def checkQuorumSatisfied(self):
-        if self.proposal_id in self.proposal_count and self.proposal_count[self.proposal_id] >= self.quorum:
+        if self.proposal_id in self.proposal_count and len(self.proposal_count[self.proposal_id]) >= self.quorum:
            return True
         else:
            return False
@@ -81,9 +84,9 @@ class Proposer(object):
             if slot_idx not in decided_log:
               #the proposer doesn't know about the decided val for this slot
               if slot_idx not in largest_accepted_id or accepted_id >= largest_accepted_id[slot_idx]:
-                if slot_idx in largest_accepted_id and  accepted_id == largest_accepted_id[slot_idx]:
-                    if accepted_val_with_largest_id[slot_idx] != accepted_id:
-                        raise ValueError("Different accepted values from accepted id: %d for slot %d"%(largest_accepted_id[slot_idx], slot_idx))
+                #if slot_idx in largest_accepted_id and  accepted_id == largest_accepted_id[slot_idx]:
+                #    if accepted_val_with_largest_id[slot_idx] != accepted_id:
+                #        raise ValueError("Different accepted values from accepted id: %d for slot %d"%(largest_accepted_id[slot_idx], slot_idx))
                 largest_accepted_id[slot_idx] = accepted_id
                 accepted_val_with_largest_id[slot_idx] = msg['accepted_val'][slot_idx]
                 accepted_client_info[slot_idx] = msg['accepted_client_info'][slot_idx]
@@ -96,9 +99,9 @@ class Proposer(object):
             last_slot_accepted_val = -1
         else:
             last_slot_accepted_val = max(accepted_val_with_largest_id.keys())
-
+       
         self.next_slot = max( last_slot_decided_log, last_slot_accepted_val ) + 1
-
+        print_message("reset next slot to be %s"%(str(self.next_slot)))
         proposal_pack_for_holes = {}
         for slot_idx in range(self.next_slot-1, -1, -1):
             if slot_idx in accepted_val_with_largest_id:
@@ -109,8 +112,8 @@ class Proposer(object):
 
         return proposal_pack_for_holes
 
-    def propose(self, proposal_pack):
-        if self.proposed_id is not None and self.proposal_id <= self.proposed_id:
+    def propose(self, proposal_pack, without_prepare = False):
+        if without_prepare is False and self.proposed_id is not None and self.proposal_id <= self.proposed_id:
            #no need to propose again
            return
 
