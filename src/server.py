@@ -8,7 +8,7 @@ from acceptor import Acceptor
 from learner import Learner
 from messenger import print_message
 
-crash_rate = 0.01
+crash_rate = 0
 
 def server(server_id, num_server, f = None):
 
@@ -52,11 +52,15 @@ def server(server_id, num_server, f = None):
            if msg['resend_idx'] != 0:
               #if this is an resent message, triger view change
               view += 1
+              proposer.need_prepare = True
+
            if view%num_acceptors == server_id:
                 #this is leader
                 request_val = msg['request_val']
                 client_info = msg['client_info']
-                proposer.prepare(view)
+                if proposer.need_prepare is True:
+                    proposer.prepare(view)
+                    proposer.need_prepare = False
                 """
                 election_result, proposer_val  = proposer.tryGetElected()
                 if election_result is True:
@@ -69,11 +73,9 @@ def server(server_id, num_server, f = None):
         elif msg['type'] == 'promise':
              proposer.addVote(msg)
              if proposer.checkQuorumSatisfied() is True:
-                 accepted_val = proposer.getValWithLargestAcceptedID() 
-                 if accepted_val is not None:
-                     proposer.propose(accepted_val, client_info)
-                 else:
-                     proposer.propose(request_val, client_info)
+                 proposal_pack_for_holes = proposer.getProposalPackForHoles(learner.getDecidedLog())
+                 proposal_pack = proposer.addNewRequest(proposal_pack_for_holes, request_val, client_info)  
+                 proposer.propose(proposal_pack)
 
         elif msg['type'] == 'prepare':
             acceptor.promise(msg)
@@ -82,9 +84,10 @@ def server(server_id, num_server, f = None):
             acceptor.accept(msg)
 
         elif msg['type'] == 'accept':
-            learner.addVote(msg)
-            if learner.checkQuorumSatisfied() is True:
-                learner.commit()
+            slot_idx = msg['slot_idx']
+            learner.addVote(msg, slot_idx)
+            if learner.checkQuorumSatisfied(slot_idx) is True:
+                learner.decide(slot_idx)
                       
         conn.close()
 

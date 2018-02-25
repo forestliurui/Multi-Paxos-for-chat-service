@@ -5,20 +5,20 @@ import pickle
 from messenger import sendMsg
 from messenger import print_message
 
-timeout = 10
+timeout = 30
 
 def client(client_idx):
 
     host_name = 'bigdata.eecs.umich.edu'
-    servers_list = {idx:{'host': host_name, 'port': 50000+idx} for idx in range(50)}
+    servers_list = {idx:{'host': host_name, 'port': 50000+idx} for idx in range(5)}
     clients_list = {idx:{'host': host_name, 'port': 40000+idx} for idx in range(50)}
       
     client_idx = int(client_idx)
     client_host = clients_list[client_idx]['host']
     client_port = clients_list[client_idx]['port']
 
-    request_size = 1
-    request_list = ['client %s: how are you, request (clt seq num) %s'%(str(client_idx), str(request_idx) ) for request_idx in range(request_size) ]
+    request_size = 5
+    request_list = ['client %s; request (clt seq num) %s: HAY'%(str(client_idx), str(request_idx) ) for request_idx in range(request_size) ]
     resend_max = 5
     for request_idx in range(len(request_list)):
         clt_seq_num = request_idx
@@ -44,7 +44,7 @@ def waitForAck(client_host, client_port, timeout, clt_seq_num):
     
     print_message('set timeout for %s s'%str(timeout))
     s.settimeout(timeout)
-    print_message("wait for ack")
+    print_message("wwwwwwwwwwwwwwwait for ack")
     try: 
        conn, addr = s.accept()
     except socket.timeout:

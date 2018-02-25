@@ -1,6 +1,6 @@
 #!/bin/bash
 
-server_num=9
+server_num=5
 
 for ((i=0;i<${server_num};i=i+1))
 do

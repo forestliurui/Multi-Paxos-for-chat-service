@@ -18,14 +18,15 @@ class Acceptor(object):
          #self.host = host
          #self.port = port
          self.promised_proposal_id = None
-         self.accepted_proposal_id = None
-         self.accepted_proposal_val = None
-         
+         self.accepted_proposal_id = {} #map from slot_idx to proposal_id
+         self.accepted_proposal_val = {} #map from slot_idx to accepted_val
+         self.accepted_client_info = {}        
+ 
      def promise(self, recvd_msg):
          if self.promised_proposal_id is None or recvd_msg['proposal_id'] >= self.promised_proposal_id:
             self.promised_proposal_id = recvd_msg['proposal_id']
             
-            reply_msg = {'type': 'promise', 'accepted_id': self.accepted_proposal_id, 'accepted_val': self.accepted_proposal_val, 'proposal_id': recvd_msg['proposal_id']}
+            reply_msg = {'type': 'promise', 'accepted_id': self.accepted_proposal_id, 'accepted_val': self.accepted_proposal_val, 'accepted_client_info': self.accepted_client_info, 'proposal_id': recvd_msg['proposal_id']}
 
             proposer_id = recvd_msg['proposer_id']
             host = self.proposers_list[proposer_id]['host'] 
@@ -36,9 +37,12 @@ class Acceptor(object):
      def accept(self, recvd_msg):
          if self.promised_proposal_id is None or recvd_msg['proposal_id'] >= self.promised_proposal_id:
             self.promised_proposal_id = recvd_msg['proposal_id']
-            self.accepted_proposal_id = recvd_msg['proposal_id']
-            self.accepted_proposal_val = recvd_msg['val']
-            reply_msg = {"type": "accept", 'proposal_id': self.accepted_proposal_id, 'val': self.accepted_proposal_val, 'client_info': recvd_msg['client_info']}
+            slot_idx = recvd_msg['slot_idx']
+            self.accepted_proposal_id[slot_idx] = recvd_msg['proposal_id']            
+            self.accepted_proposal_val[slot_idx] = recvd_msg['val']
+            self.accepted_client_info[slot_idx] = recvd_msg['client_info']
+
+            reply_msg = {"type": "accept", 'proposal_id': self.accepted_proposal_id[slot_idx], 'val': self.accepted_proposal_val[slot_idx], 'slot_idx': slot_idx, 'client_info': recvd_msg['client_info']}
             self.sendToAllLearners(reply_msg)
 
      def sendToAllLearners(self, msg):

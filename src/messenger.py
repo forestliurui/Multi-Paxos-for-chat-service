@@ -8,11 +8,11 @@ import datetime
 import time
 import numpy as np
 
-loss_rate = 0.3
+loss_rate = 0
 
 def sendMsg(host, port, msg):
     delay = np.random.rand()
-    time.sleep(delay)
+    time.sleep(2*delay)
   
     if messageLoss(loss_rate) is True:
        print_message("lose message for: "+str(msg))
