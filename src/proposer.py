@@ -16,8 +16,8 @@ class Proposer(object):
          #if self.server_id == 0:
          #   import pdb;pdb.set_trace()
          #remove itself from the acceptors list, because it doesn't need to communicate with itself
-         del self.acceptors_list[self.server_id]
-         self.quorum = len(self.acceptors_list)/2     
+         #del self.acceptors_list[self.server_id]
+         self.quorum = len(self.acceptors_list)/2 + 1  
          
          self.proposal_id = None
          self.proposal_count = {}

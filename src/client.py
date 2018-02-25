@@ -55,7 +55,7 @@ def waitForAck(client_host, client_port, timeout, clt_seq_num):
        print_message('Connected by '+str( addr))
        data = conn.recv(4096*2)
        msg = pickle.loads(data)
-       print_message('Connection received '+str(msg))
+       print_message('RCVD: '+str(msg))
        conn.close()
 
        #wait for the right clt_seq_num

@@ -12,7 +12,7 @@ class Acceptor(object):
          #if self.server_id == 0:
          #   import pdb;pdb.set_trace()
          #remove itself from the acceptors list, because it doesn't need to communicate with itself
-         del self.proposers_list[self.server_id]
+         #del self.proposers_list[self.server_id]
          self.learners_list = self.proposers_list
 
          #self.host = host

@@ -3,6 +3,7 @@ import socket
 import pickle
 import numpy as np
 import collections
+import time
 
 from proposer import Proposer
 from acceptor import Acceptor
@@ -22,7 +23,7 @@ def server(server_id, num_server, f = None):
     #Ideally, quorum should be  len(servers_list)/2 + 1
     #I choose len(servers_list)/2, because the current process only send message to other processes
     #thus quorum assumes that itself has already been included 
-    quorum = len(servers_list)/2
+    quorum = len(servers_list)/2 + 1
 
     proposer = Proposer(server_id, servers_list)
     acceptor = Acceptor(server_id, servers_list)
@@ -51,7 +52,7 @@ def server(server_id, num_server, f = None):
         print_message('Connection by '+str(addr))
         data = conn.recv(4096*2)
         msg = pickle.loads(data)      
-        print_message('Connection received '+str(msg))
+        print_message('RCVD: '+str(msg))
 
         if msg['type'] == 'request':
            if msg['resend_idx'] != 0 or forceViewChange(msg):
@@ -64,6 +65,8 @@ def server(server_id, num_server, f = None):
                 request_val_queue.append( msg['request_val'] )
                 client_info_queue.append( msg['client_info'] )
                 if proposer.need_prepare is True:
+                    if msg['client_info']['client_id'] == 0:
+                        time.sleep(30)         
                     proposer.prepare(view)
                     #proposer.need_prepare = False
         
@@ -118,7 +121,7 @@ def server_crash(server_id, crash_rate):
 
 def forceViewChange(msg):
     client_info = msg['client_info']
-    if client_info['client_id'] == 0 and client_info['clt_seq_num'] == 3:
+    if (client_info['client_id'] == 0 or client_info['client_id'] == 1 ) and client_info['clt_seq_num'] == 3:
        return True
     else:
        return False

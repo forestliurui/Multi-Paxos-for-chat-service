@@ -25,7 +25,7 @@ def sendMsg(host, port, msg):
     except socket.error:
        print_message("listening port closed, ignore this msg")
        return 
-    print_message("send: "+ str(msg))
+    print_message("SEND: "+ str(msg))
     s.sendall(pickle.dumps(msg))
     s.close()
 
