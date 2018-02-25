@@ -65,8 +65,8 @@ def server(server_id, num_server, f = None):
                 request_val_queue.append( msg['request_val'] )
                 client_info_queue.append( msg['client_info'] )
                 if proposer.need_prepare is True:
-                    if msg['client_info']['client_id'] == 0:
-                        time.sleep(30)         
+                    #if msg['client_info']['client_id'] == 0:
+                    #    time.sleep(30)         
                     proposer.prepare(view)
                     #proposer.need_prepare = False
         
@@ -74,6 +74,10 @@ def server(server_id, num_server, f = None):
                     proposal_pack = {}
                     print_message("no need to prepare")
                     print_message(request_val_queue)
+                   
+                    if skipSlot(msg):
+                        print_message("skip slot %s"%(str(proposer.next_slot)))
+                        proposer.next_slot += 1
                     for _ in range(len(request_val_queue)):
                         request_val = request_val_queue.popleft()
                         client_info = client_info_queue.popleft()
@@ -94,6 +98,7 @@ def server(server_id, num_server, f = None):
              if proposer.checkQuorumSatisfied() is True:
                 if proposer.need_prepare is True:
                     proposal_pack = proposer.getProposalPackForHoles(learner.getDecidedLog())
+                    print_message("proposal pack for holes: %s"%(str(proposal_pack)))
                     for _ in range(len(request_val_queue)):
                         request_val = request_val_queue.popleft()
                         client_info = client_info_queue.popleft()
@@ -121,10 +126,18 @@ def server_crash(server_id, crash_rate):
 
 def forceViewChange(msg):
     client_info = msg['client_info']
-    if (client_info['client_id'] == 0 or client_info['client_id'] == 1 ) and client_info['clt_seq_num'] == 3:
+    if (client_info['client_id'] == 0 or client_info['client_id'] ==1 ) and client_info['clt_seq_num'] == 3:
        return True
     else:
        return False
+
+def skipSlot(msg):
+    client_info = msg['client_info']
+    if client_info['client_id'] == 0  and client_info['clt_seq_num'] == 2:
+       return True
+    else:
+       return False
+
 
 if __name__ == "__main__":
     from optparse import OptionParser, OptionGroup

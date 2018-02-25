@@ -42,7 +42,7 @@ class Acceptor(object):
             self.accepted_proposal_val[slot_idx] = recvd_msg['val']
             self.accepted_client_info[slot_idx] = recvd_msg['client_info']
 
-            reply_msg = {"type": "accept", 'proposal_id': self.accepted_proposal_id[slot_idx], 'val': self.accepted_proposal_val[slot_idx], 'slot_idx': slot_idx, 'client_info': recvd_msg['client_info']}
+            reply_msg = {"type": "accept", 'proposal_id': self.accepted_proposal_id[slot_idx], 'val': self.accepted_proposal_val[slot_idx], 'slot_idx': slot_idx,'acceptor_id': self.server_id, 'client_info': recvd_msg['client_info']}
             self.sendToAllLearners(reply_msg)
 
      def sendToAllLearners(self, msg):

@@ -21,9 +21,9 @@ class Slot(object):
          self.proposal_id = max(msg['proposal_id'], self.proposal_id)
 
          if msg['proposal_id'] not in self.accept_count:
-             self.accept_count[msg['proposal_id']] = 1
-         else:
-             self.accept_count[msg['proposal_id']] += 1
+             self.accept_count[msg['proposal_id']] = {}
+         
+         self.accept_count[msg['proposal_id']][msg['acceptor_id']] = True
 
          if msg['proposal_id'] not in self.msg_collection:
                self.msg_collection[msg['proposal_id']] = []
@@ -31,7 +31,7 @@ class Slot(object):
 
 
      def checkQuorumSatisfied(self):
-         if self.accept_count[self.proposal_id] >= self.quorum:
+         if len(self.accept_count[self.proposal_id]) >= self.quorum:
             return True
          else:
             return False
@@ -59,13 +59,14 @@ class Learner(object):
          return dict(self.decided_log)
          
      def addVote(self, msg, slot_idx):
-  
-         #avoid adding the same request (clt_seq_num) from the same client
-         client_id =  msg['client_info']['client_id']
-         client_seq =  msg['client_info']['clt_seq_num']
+ 
+         if msg['val'] != 'no-op': 
+             #avoid adding the same request (clt_seq_num) from the same client
+             client_id =  msg['client_info']['client_id']
+             client_seq =  msg['client_info']['clt_seq_num']
 
-         if client_id in self.decided_clt_seq and self.decided_clt_seq[client_id] >= client_seq:
-             return
+             if client_id in self.decided_clt_seq and self.decided_clt_seq[client_id] >= client_seq:
+                 return
              
          if slot_idx not in self.slots:
               self.slots[slot_idx] = Slot(slot_idx, self.quorum)
@@ -88,7 +89,7 @@ class Learner(object):
          decided_val = self.slots[slot_idx].msg_collection[self.slots[slot_idx].proposal_id][0]['val']
          client_info = self.slots[slot_idx].msg_collection[self.slots[slot_idx].proposal_id][0]['client_info']
          self.decided_log[slot_idx] = decided_val
-         if decided_val != 'noop':
+         if decided_val != 'no-op':
             client_host = client_info['client_host']
             client_port = client_info['client_port']
             client_id = client_info['client_id']

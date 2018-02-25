@@ -105,10 +105,10 @@ class Proposer(object):
         proposal_pack_for_holes = {}
         for slot_idx in range(self.next_slot-1, -1, -1):
             if slot_idx in accepted_val_with_largest_id:
-               accepted_val_with_largest_id[slot_idx] = {'val': accepted_val_with_largest_id[slot_idx], 'client_info': accepted_client_info[slot_idx]}
+               proposal_pack_for_holes[slot_idx] = {'val': accepted_val_with_largest_id[slot_idx], 'client_info': accepted_client_info[slot_idx]}
             elif slot_idx not in decided_log:
                #noop
-               accepted_val_with_largest_id[slot_idx] = {'val': 'no-op', 'client_info': None}
+               proposal_pack_for_holes[slot_idx] = {'val': 'no-op', 'client_info': None}
 
         return proposal_pack_for_holes
 
