@@ -4,7 +4,7 @@ import pickle
 
 
 def load_state(server_id):
-    state_backup = './state_backup/{}.json'.format(server_id)
+    state_backup = './state_backup/{}.txt'.format(server_id)
     if not os.path.exists(state_backup):
         state = dict(
                 decided_log={},
@@ -13,7 +13,7 @@ def load_state(server_id):
                 accepted_proposal_val={},
                 accepted_client_info={}
             )
-        save_state(state_backup, state)
+        save_state(server_id, state)
 
     with open(state_backup) as f:
         state = pickle.load(f)
@@ -21,7 +21,7 @@ def load_state(server_id):
 
 
 def save_state(server_id, state):
-    state_backup = './state_backup/{}.json'.format(server_id)
+    state_backup = './state_backup/{}.txt'.format(server_id)
     tmp = state_backup + '.tmp'
     with open(tmp, 'w') as f:
         pickle.dump(state, f)

@@ -94,11 +94,12 @@ class Learner(object):
          client_info = self.slots[slot_idx].msg_collection[self.slots[slot_idx].proposal_id][0]['client_info']
 
          # save updated state first
-         state = load_state(self.server_id)
+         state = load_state(self.learner_id)
          state['decided_log'][slot_idx] = decided_val
-         save_state(self.server_id, state)
+         save_state(self.learner_id, state)
 
          self.decided_log[slot_idx] = decided_val
+
          if decided_val != 'noop':
             client_host = client_info['client_host']
             client_port = client_info['client_port']

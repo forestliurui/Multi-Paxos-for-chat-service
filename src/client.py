@@ -5,13 +5,14 @@ import pickle
 from messenger import sendMsg
 from messenger import print_message
 
-timeout = 600
+timeout = 60000
 
 def client(client_idx):
 
-    host_name = 'bigdata.eecs.umich.edu'
-    servers_list = {idx:{'host': host_name, 'port': 50000+idx} for idx in range(5)}
-    clients_list = {idx:{'host': host_name, 'port': 40000+idx} for idx in range(50)}
+    # host_name = 'bigdata.eecs.umich.edu'
+    host_name = 'localhost'
+    servers_list = {idx:{'host': host_name, 'port': 50050+idx} for idx in range(5)}
+    clients_list = {idx:{'host': host_name, 'port': 40040+idx} for idx in range(50)}
       
     client_idx = int(client_idx)
     client_host = clients_list[client_idx]['host']

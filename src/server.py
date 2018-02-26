@@ -17,8 +17,9 @@ def server(server_id, num_server, f = None):
     server_id = int(server_id) 
     num_server = int(num_server)
 
-    host_name = 'bigdata.eecs.umich.edu'
-    servers_list = {idx:{'host': host_name, 'port': 50000+idx} for idx in range(num_server)}
+    # host_name = 'bigdata.eecs.umich.edu'
+    host_name = 'localhost'
+    servers_list = {idx:{'host': host_name, 'port': 50050+idx} for idx in range(num_server)}
 
     #Ideally, quorum should be  len(servers_list)/2 + 1
     #I choose len(servers_list)/2, because the current process only send message to other processes
