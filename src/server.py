@@ -5,6 +5,7 @@ import numpy as np
 import collections
 import time
 import yaml
+import os
 
 from proposer import Proposer
 from acceptor import Acceptor
@@ -40,7 +41,20 @@ def server(server_id, config_file = '../config/servers.yaml'):
 
     # load state
     state_backup = get_state_backup(server_id, state_backup_folder)
-    state = load_state(state_backup)
+    if not os.path.exists(state_backup):
+        state = dict(
+                decided_log={},
+                promised_proposal_id=None,
+                accepted_proposal_id={},
+                accepted_proposal_val={},
+                accepted_client_info={}
+            )
+        save_state(state_backup, state)
+    else:
+        print "Recovering server"
+        state = load_state(state_backup)
+
+    # state = load_state(state_backup)
 
     proposer = Proposer(server_id, servers_list)
     acceptor = Acceptor(server_id, servers_list, state['promised_proposal_id'], state['accepted_proposal_id'],
