@@ -23,7 +23,8 @@ def client(client_idx):
     for request_idx in range(len(request_list)):
         clt_seq_num = request_idx
         val = request_list[request_idx]
-        for resend_idx in range(resend_max): 
+        resend_idx = 0
+        while True:
             client_info = { 'clt_seq_num': clt_seq_num, 'client_id': client_idx, 'client_host': client_host, 'client_port': client_port }
             msg = {'type': 'request', 'request_val': val, 'resend_idx': resend_idx, 'client_info': client_info}
             for server_id in servers_list:
@@ -34,8 +35,9 @@ def client(client_idx):
             
             if waitForAck(client_host, client_port, timeout, clt_seq_num) is True:
                break
-            elif resend_idx == resend_max-1:
-               print_message('give up on request_idx %s due to timeout on max resend times'%(str(request_idx)))
+            #elif resend_idx == resend_max-1:
+            #   print_message('give up on request_idx %s due to timeout on max resend times'%(str(request_idx)))
+            resend_idx += 1
 
 def waitForAck(client_host, client_port, timeout, clt_seq_num):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

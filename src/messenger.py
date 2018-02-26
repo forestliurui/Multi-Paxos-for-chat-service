@@ -14,7 +14,7 @@ def sendMsg(host, port, msg):
     delay = np.random.rand()
     time.sleep(delay)
     
-    if msg['type'] != 'ack': 
+    if  msg['type'] != 'request': 
       if messageLoss(loss_rate) is True:
        print_message("DROP: "+str(msg))
        

@@ -62,17 +62,27 @@ class Proposer(object):
         else:
            return False
 
+    def checkIdenticalRequest(self, rqst_clnt_info, rqst_clnt_info_list):
+        for rqst_clnt_info_check in rqst_clnt_info_list: 
+            if rqst_clnt_info['client_id'] == rqst_clnt_info_check['client_id'] and rqst_clnt_info['clt_seq_num'] == rqst_clnt_info_check['clt_seq_num']:
+               return True 
+        return False
+
     def addNewRequest(self, proposal_pack_input, request_val, request_client_info):
         proposal_pack = dict(proposal_pack_input)
-        proposal_pack[self.next_slot] = {}
-        proposal_pack[self.next_slot]['val'] = request_val
-        proposal_pack[self.next_slot]['client_info'] = request_client_info
+        rqst_clnt_info_list = [ proposal_pack[slot_idx]['client_info'] for slot_idx in proposal_pack.keys() ]
+
+        if self.checkIdenticalRequest(request_client_info, rqst_clnt_info_list) is False:
+            proposal_pack[self.next_slot] = {}
+            proposal_pack[self.next_slot]['val'] = request_val
+            proposal_pack[self.next_slot]['client_info'] = request_client_info
         
-        self.next_slot += 1
+            self.next_slot += 1
         return proposal_pack
            
 
     def getProposalPackForHoles(self, decided_log):
+        #for all previous accepted values, not only for holes(need to change the name)
         msg_list = self.msg_collection[self.proposal_id]
         largest_accepted_id = {} #map from slot_idx to proposal_id
         accepted_val_with_largest_id = {} #map from slot_idx to accepted_val
@@ -81,7 +91,7 @@ class Proposer(object):
         #get info for slot holes with accepted val
         for msg in msg_list:
           for slot_idx, accepted_id in msg['accepted_id'].items():
-            if slot_idx not in decided_log:
+              #if slot_idx not in decided_log:
               #the proposer doesn't know about the decided val for this slot
               if slot_idx not in largest_accepted_id or accepted_id >= largest_accepted_id[slot_idx]:
                 #if slot_idx in largest_accepted_id and  accepted_id == largest_accepted_id[slot_idx]:

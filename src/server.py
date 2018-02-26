@@ -58,6 +58,11 @@ def server(server_id, num_server, f = None):
            if msg['resend_idx'] != 0:
               #if this is an resent message, triger view change
               view += 1
+              
+              #new leader clears the request queue 
+              request_val_queue.clear()
+              client_info_queue.clear()
+
               proposer.need_prepare = True
               print_message("change to view %s"%(str(view)))
            if view%num_acceptors == server_id:

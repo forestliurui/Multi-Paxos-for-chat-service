@@ -29,7 +29,6 @@ class Slot(object):
                self.msg_collection[msg['proposal_id']] = []
          self.msg_collection[msg['proposal_id']].append(msg)         
 
-
      def checkQuorumSatisfied(self):
          if len(self.accept_count[self.proposal_id]) >= self.quorum:
             return True
@@ -65,8 +64,8 @@ class Learner(object):
              client_id =  msg['client_info']['client_id']
              client_seq =  msg['client_info']['clt_seq_num']
 
-             if client_id in self.decided_clt_seq and self.decided_clt_seq[client_id] >= client_seq:
-                 return
+             #if client_id in self.decided_clt_seq and self.decided_clt_seq[client_id] >= client_seq:
+             #    return
              
          if slot_idx not in self.slots:
               self.slots[slot_idx] = Slot(slot_idx, self.quorum)
@@ -82,9 +81,10 @@ class Learner(object):
          """
          when learner receives accept message from a quorum, he knows that a value has been decided. (It is not the same as executed)
          """
-         if self.slots[slot_idx].decided_id is not None and self.slots[slot_idx].proposal_id <= self.slots[slot_idx].decided_id:
-             #no need to commit again
-             return
+         #if self.slots[slot_idx].decided_id is not None and self.slots[slot_idx].proposal_id <= self.slots[slot_idx].decided_id:
+         #    #no need to commit again
+         #    return
+
          self.slots[slot_idx].decided_id = self.slots[slot_idx].proposal_id
          decided_val = self.slots[slot_idx].msg_collection[self.slots[slot_idx].proposal_id][0]['val']
          client_info = self.slots[slot_idx].msg_collection[self.slots[slot_idx].proposal_id][0]['client_info']
