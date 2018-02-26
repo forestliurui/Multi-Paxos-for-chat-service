@@ -63,7 +63,8 @@ class Proposer(object):
            return False
 
     def checkIdenticalRequest(self, rqst_clnt_info, rqst_clnt_info_list):
-        for rqst_clnt_info_check in rqst_clnt_info_list: 
+        for rqst_clnt_info_check in rqst_clnt_info_list:
+          if rqst_clnt_info_check is not None: 
             if rqst_clnt_info['client_id'] == rqst_clnt_info_check['client_id'] and rqst_clnt_info['clt_seq_num'] == rqst_clnt_info_check['clt_seq_num']:
                return True 
         return False
