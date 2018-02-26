@@ -6,7 +6,7 @@ f: 2
 
 x: -1
 
-num_failed_primary: 2
+num_failed_primary: -1
 
 servers_list:
    0:
