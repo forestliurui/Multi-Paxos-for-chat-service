@@ -111,6 +111,6 @@ class Learner(object):
               self.executed_log[next_unexecuted_slot_idx] = self.decided_log[next_unexecuted_slot_idx]
               next_unexecuted_slot_idx += 1
          print_message("<<<<<<<<<<<<<<<<<<<<<<learner id %s executed values: %s"%(str(self.learner_id), str(self.executed_log)))
-
+         print_message("<<<<<<<<<<<<<<<<<<<<<<learner id %s executed hash: %s"%(str(self.learner_id), str(hash(tuple(self.executed_log.items()))  )))
 
 
