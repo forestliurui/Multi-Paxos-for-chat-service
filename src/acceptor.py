@@ -27,7 +27,7 @@ class Acceptor(object):
      def promise(self, recvd_msg):
          if self.promised_proposal_id is None or recvd_msg['proposal_id'] >= self.promised_proposal_id:
             # save updated state first
-            state = load_state(self.server_id)
+            state = load_state(self.state_backup)
             state['promised_proposal_id'] = recvd_msg['proposal_id']
             save_state(self.state_backup, state)
 
@@ -46,7 +46,7 @@ class Acceptor(object):
             slot_idx = recvd_msg['slot_idx']
 
             # save updated state first
-            state = load_state(self.server_id)
+            state = load_state(self.state_backup)
             state['promised_proposal_id'] = recvd_msg['proposal_id']
             state['accepted_proposal_id'][slot_idx] = recvd_msg['proposal_id']
             state['accepted_proposal_val'][slot_idx] = recvd_msg['val']

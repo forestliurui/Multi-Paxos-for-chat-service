@@ -94,7 +94,7 @@ class Learner(object):
          client_info = self.slots[slot_idx].msg_collection[self.slots[slot_idx].proposal_id][0]['client_info']
 
          # save updated state first
-         state = load_state(self.learner_id)
+         state = load_state(self.state_backup)
          state['decided_log'][slot_idx] = decided_val
          save_state(self.state_backup, state)
 
