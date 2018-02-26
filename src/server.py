@@ -18,7 +18,8 @@ def server(server_id, config_file = '../config/servers.yaml'):
 
     server_id = int(server_id) 
 
-    config = yaml.load(open(config_file, 'r'))
+    with open(config_file, 'r') as config_handler:
+        config = yaml.load(config_handler)
 
     f = int(config['f']) #the number of failure that can be tolerated
 
@@ -94,6 +95,12 @@ def server(server_id, config_file = '../config/servers.yaml'):
                 #this is leader
 
                 #testcase3(server_id, msg, view)
+                if num_failed_primary is not None and server_id < num_failed_primary:
+                     print_message("force the primary %s to crash"%(str(server_id)))
+                     print_message("!!!!!!!!!!!!!!!!server id %s crashes"%(str(server_id)))
+                     exit()
+
+
 
                 #testcase 4
                 if x is not None and x+1 in learner.decided_log and server_skip == server_id:
