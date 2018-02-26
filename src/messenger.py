@@ -27,7 +27,14 @@ def sendMsg(host, port, msg):
        print_message("listening port closed, ignore this msg")
        return 
     print_message("SEND: "+ str(msg))
-    s.sendall(pickle.dumps(msg))
+
+    try:
+       s.sendall(pickle.dumps(msg))
+    except socket.error:
+       print_message("try to resend due to socket error")
+       time.sleep(0.1)
+       s.sendall(pickle.dumps(msg))
+
     s.close()
 
 def messageLoss(loss_rate):
