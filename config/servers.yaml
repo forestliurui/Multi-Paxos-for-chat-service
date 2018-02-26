@@ -1,5 +1,7 @@
 #this is the config file for servers
 
+state_backup_folder: ../state_backup
+
 f: 2
 
 x: -1
