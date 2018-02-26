@@ -56,9 +56,6 @@ class Learner(object):
          self.slots = {}
          self.decided_clt_seq = {}
 
-     def get_decided_log(self):
-         return self.decided_log
-
 
      def getDecidedLog(self):
          return dict(self.decided_log)

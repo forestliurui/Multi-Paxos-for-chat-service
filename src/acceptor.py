@@ -22,18 +22,6 @@ class Acceptor(object):
          self.accepted_proposal_id = accepted_proposal_id #map from slot_idx to proposal_id
          self.accepted_proposal_val = accepted_proposal_val #map from slot_idx to accepted_val
          self.accepted_client_info = accepted_client_info
-
-     def get_promised_proposal_id(self):
-         return self.promised_proposal_id
-
-     def get_accepted_proposal_id(self):
-         return self.accepted_proposal_id
-
-     def get_accepted_proposal_val(self):
-         return self.accepted_proposal_val
-
-     def get_accepted_client_info(self):
-         return self.accepted_client_info
  
      def promise(self, recvd_msg):
          if self.promised_proposal_id is None or recvd_msg['proposal_id'] >= self.promised_proposal_id:
