@@ -8,6 +8,7 @@ from proposer import Proposer
 from acceptor import Acceptor
 from learner import Learner
 from messenger import print_message
+from state_backup import load_state, save_state
 
 crash_rate = 0
 
@@ -24,15 +25,19 @@ def server(server_id, num_server, f = None):
     #thus quorum assumes that itself has already been included 
     quorum = len(servers_list)/2
 
+    # load state
+    state = load_state(server_id)
+
     proposer = Proposer(server_id, servers_list)
-    acceptor = Acceptor(server_id, servers_list)
-    learner = Learner(server_id, quorum)
+    acceptor = Acceptor(server_id, servers_list, state['promised_proposal_id'], state['accepted_proposal_id'],
+                        state['accepted_proposal_val'], state['accepted_client_info'])
+    learner = Learner(server_id, quorum, state['decided_log'])
 
     view = 0
     num_acceptors = len(servers_list)
 
-    HOST = servers_list[server_id]['host']                 # Symbolic name meaning all available interfaces
-    PORT = servers_list[server_id]['port']             # Arbitrary non-privileged port
+    HOST = servers_list[server_id]['host']  # Symbolic name meaning all available interfaces
+    PORT = servers_list[server_id]['port']  # Arbitrary non-privileged port
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((HOST, PORT))
     s.listen(100)
@@ -86,6 +91,10 @@ def server(server_id, num_server, f = None):
                     #proposer a value
                     proposer.propose(proposer_val)
                 """
+
+        elif msg['type'] == 'prepare':
+            acceptor.promise(msg)
+
         elif msg['type'] == 'promise':
              proposer.addVote(msg)
              if proposer.checkQuorumSatisfied() is True:
@@ -97,8 +106,6 @@ def server(server_id, num_server, f = None):
                         proposal_pack = proposer.addNewRequest(proposal_pack, request_val, client_info)  
                     proposer.propose(proposal_pack)
                 proposer.need_prepare = False
-        elif msg['type'] == 'prepare':
-            acceptor.promise(msg)
 
         elif msg['type'] == 'propose':
             acceptor.accept(msg)
@@ -122,6 +129,7 @@ def forceViewChange(msg):
        return True
     else:
        return False
+
 
 if __name__ == "__main__":
     from optparse import OptionParser, OptionGroup
