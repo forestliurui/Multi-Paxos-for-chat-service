@@ -4,6 +4,7 @@ import pickle
 import numpy as np
 import collections
 import time
+import yaml
 
 from proposer import Proposer
 from acceptor import Acceptor
@@ -12,25 +13,33 @@ from messenger import print_message
 
 crash_rate = 0
 
-def server(server_id, num_server, f = None):
+def server(server_id, config_file = '../config/servers.yaml'):
+
 
     server_id = int(server_id) 
-    num_server = int(num_server)
 
-    host_name = 'bigdata.eecs.umich.edu'
-    servers_list = {idx:{'host': host_name, 'port': 50000+idx} for idx in range(num_server)}
+    config = yaml.load(open(config_file, 'r'))
+
+    f = int(config['f']) #the number of failure that can be tolerated
+
+    num_server = 2*f + 1
+
+    #host_name = 'bigdata.eecs.umich.edu'
+    #servers_list = {idx:{'host': host_name, 'port': 50000+idx} for idx in range(num_server)}
+
+    servers_list = { server_idx: config['servers_list'][server_idx] for server_idx in range(num_server)}
 
     #Ideally, quorum should be  len(servers_list)/2 + 1
     #I choose len(servers_list)/2, because the current process only send message to other processes
     #thus quorum assumes that itself has already been included 
-    quorum = len(servers_list)/2 + 1
+    quorum = num_server/2 + 1
 
     proposer = Proposer(server_id, servers_list)
     acceptor = Acceptor(server_id, servers_list)
     learner = Learner(server_id, quorum)
 
     view = 0
-    num_acceptors = len(servers_list)
+    num_acceptors = num_server
 
     HOST = servers_list[server_id]['host']                 # Symbolic name meaning all available interfaces
     PORT = servers_list[server_id]['port']             # Arbitrary non-privileged port
@@ -38,7 +47,20 @@ def server(server_id, num_server, f = None):
     s.bind((HOST, PORT))
     s.listen(100)
 
-    x = 3
+    #for test case 4 to skip slot x
+    if 'x' in config and config['x'] >= 0:
+         x = int(config['x'])
+    else:
+         x = None
+
+    
+    if 'num_failed_primary' in config and config['num_failed_primary'] >= 0:
+         num_failed_primary = int(config['num_failed_primary'])
+    else:
+         num_failed_primary = None 
+
+
+    #x = 3     
     server_skip = 0    
  
     request_val_queue = collections.deque()
