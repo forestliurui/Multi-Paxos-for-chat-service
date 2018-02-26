@@ -5,11 +5,13 @@ import numpy as np
 import collections
 import time
 import yaml
+import os
 
 from proposer import Proposer
 from acceptor import Acceptor
 from learner import Learner
 from messenger import print_message
+from state_backup import save_state, load_state, get_state_backup
 
 crash_rate = 0
 
@@ -23,6 +25,8 @@ def server(server_id, config_file = '../config/servers.yaml'):
 
     f = int(config['f']) #the number of failure that can be tolerated
 
+    state_backup_folder = config['state_backup_folder']
+
     num_server = 2*f + 1
 
     #host_name = 'bigdata.eecs.umich.edu'
@@ -35,9 +39,27 @@ def server(server_id, config_file = '../config/servers.yaml'):
     #thus quorum assumes that itself has already been included 
     quorum = num_server/2 + 1
 
+    # load state
+    state_backup = get_state_backup(server_id, state_backup_folder)
+    if not os.path.exists(state_backup):
+        state = dict(
+                decided_log={},
+                promised_proposal_id=None,
+                accepted_proposal_id={},
+                accepted_proposal_val={},
+                accepted_client_info={}
+            )
+        save_state(state_backup, state)
+    else:
+        print "Recovering server"
+        state = load_state(state_backup)
+
+    # state = load_state(state_backup)
+
     proposer = Proposer(server_id, servers_list)
-    acceptor = Acceptor(server_id, servers_list)
-    learner = Learner(server_id, quorum)
+    acceptor = Acceptor(server_id, servers_list, state['promised_proposal_id'], state['accepted_proposal_id'],
+                        state['accepted_proposal_val'], state['accepted_client_info'], state_backup)
+    learner = Learner(server_id, quorum, state['decided_log'], state_backup)
 
     view = 0
     num_acceptors = num_server

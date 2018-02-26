@@ -4,6 +4,7 @@ This is the Learner class
 
 from messenger import sendMsg
 from messenger import print_message
+from state_backup import save_state, load_state, get_state_backup
 
 class Slot(object):
      def __init__(self, slot_idx, quorum):
@@ -37,8 +38,9 @@ class Slot(object):
 
 
 class Learner(object):
-     def __init__(self, server_id, quorum, log = None):
-         self.decided_log = {}
+     def __init__(self, server_id, quorum, decided_log, state_backup, log = None):
+         self.decided_log = decided_log
+         self.state_backup = state_backup
          self.executed_log = {}
          self.accept_count = {}
          self.maxCount = 0
@@ -53,6 +55,8 @@ class Learner(object):
          self.decided_id = None
          self.slots = {}
          self.decided_clt_seq = {}
+
+         self.execute()  # recovery
 
      def getDecidedLog(self):
          return dict(self.decided_log)
@@ -88,6 +92,12 @@ class Learner(object):
          self.slots[slot_idx].decided_id = self.slots[slot_idx].proposal_id
          decided_val = self.slots[slot_idx].msg_collection[self.slots[slot_idx].proposal_id][0]['val']
          client_info = self.slots[slot_idx].msg_collection[self.slots[slot_idx].proposal_id][0]['client_info']
+
+         # save updated state first
+         state = load_state(self.state_backup)
+         state['decided_log'][slot_idx] = decided_val
+         save_state(self.state_backup, state)
+
          self.decided_log[slot_idx] = decided_val
          if decided_val != 'no-op':
             client_host = client_info['client_host']
