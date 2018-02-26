@@ -1,17 +1,24 @@
 # Echo client program
 import socket
 import pickle
+import yaml
 
 from messenger import sendMsg
 from messenger import print_message
 
 timeout = 20
 
-def client(client_idx):
+def client(client_idx, config_file_server):
+
+    with open(config_file_server, 'r') as config_handler:
+        config = yaml.load(config_handler)
+    f = int(config['f']) #the number of failure that can be tolerated
+    num_server = 2*f + 1
+    servers_list = { server_idx: config['servers_list'][server_idx] for server_idx in range(num_server)}
 
     host_name = 'bigdata.eecs.umich.edu'
     servers_list = {idx:{'host': host_name, 'port': 50000+idx} for idx in range(5)}
-    clients_list = {idx:{'host': host_name, 'port': 40000+idx} for idx in range(50)}
+    #clients_list = {idx:{'host': host_name, 'port': 40000+idx} for idx in range(50)}
       
     client_idx = int(client_idx)
     client_host = clients_list[client_idx]['host']
@@ -19,7 +26,7 @@ def client(client_idx):
 
     request_size = 5
     request_list = ['client, seq: (%s, %s)'%(str(client_idx), str(request_idx) ) for request_idx in range(request_size) ]
-    resend_max = 5
+    
     for request_idx in range(len(request_list)):
         clt_seq_num = request_idx
         val = request_list[request_idx]
