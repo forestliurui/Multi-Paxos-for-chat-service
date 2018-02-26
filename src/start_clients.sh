@@ -1,6 +1,6 @@
 #!/bin/bash
 
-client_num=4
+client_num=2
 
 for ((i=0;i<${client_num};i=i+1))
 do

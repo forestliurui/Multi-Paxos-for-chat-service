@@ -5,7 +5,7 @@ import pickle
 from messenger import sendMsg
 from messenger import print_message
 
-timeout = 1
+timeout = 20
 
 def client(client_idx):
 

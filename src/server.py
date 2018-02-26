@@ -37,6 +37,9 @@ def server(server_id, num_server, f = None):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((HOST, PORT))
     s.listen(100)
+
+    x = 3
+    server_skip = 0    
  
     request_val_queue = collections.deque()
     client_info_queue = collections.deque()
@@ -70,6 +73,13 @@ def server(server_id, num_server, f = None):
 
                 #testcase3(server_id, msg, view)
 
+                #testcase 4
+                if x is not None and x+1 in learner.decided_log and server_skip == server_id:
+                     #server_skip = server_id
+                     print_message('server id %s has learned slot %s'%(str(server_id), str(x+1)))
+                     print_message("!!!!!!!!!!!!!!!!server id %s crashes"%(str(server_id)))
+                     exit()
+
                 request_val_queue.append( msg['request_val'] )
                 client_info_queue.append( msg['client_info'] )
                 if proposer.need_prepare is True:
@@ -92,6 +102,13 @@ def server(server_id, num_server, f = None):
                         client_info = client_info_queue.popleft()
                         proposal_pack = proposer.addNewRequest(proposal_pack, request_val, client_info)
                     #if skipSlot(msg) is False:
+
+                    #testcase 4
+                    if x is not None and x in proposal_pack and server_skip == server_id:
+                         print_message('At slot %s: %s'%(str(x), str(proposal_pack[x])))
+                         print_message('proposer %s skips slot %s for server_skip %s'%(str(server_id), str(x), str(server_skip)))
+                         del proposal_pack[x]        
+
                     proposer.propose(proposal_pack, without_prepare = True)
 
                 """
@@ -113,6 +130,13 @@ def server(server_id, num_server, f = None):
                         request_val = request_val_queue.popleft()
                         client_info = client_info_queue.popleft()
                         proposal_pack = proposer.addNewRequest(proposal_pack, request_val, client_info)  
+
+                    #testcase 4
+                    if x is not None and x in proposal_pack and server_skip == server_id:
+                         print_message('At slot %s: %s'%(str(x), str(proposal_pack[x])))
+                         print_message('proposer %s skips slot %s for server_skip %s'%(str(server_id), str(x), str(server_skip)))
+                         del proposal_pack[x]
+
                     proposer.propose(proposal_pack)
                 proposer.need_prepare = False
         elif msg['type'] == 'prepare':

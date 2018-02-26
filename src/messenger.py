@@ -12,7 +12,7 @@ loss_rate = 0
 
 def sendMsg(host, port, msg):
     delay = np.random.rand()
-    time.sleep(0.01*delay)
+    time.sleep(1*delay)
     
     #if  msg['type'] != 'request': 
     if messageLoss(loss_rate) is True:
