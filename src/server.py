@@ -43,6 +43,7 @@ def server(server_id, config_file = '../config/servers.yaml'):
     state_backup = get_state_backup(server_id, state_backup_folder)
     if not os.path.exists(state_backup):
         state = dict(
+                view=0,
                 decided_log={},
                 promised_proposal_id=None,
                 accepted_proposal_id={},
@@ -60,8 +61,9 @@ def server(server_id, config_file = '../config/servers.yaml'):
     acceptor = Acceptor(server_id, servers_list, state['promised_proposal_id'], state['accepted_proposal_id'],
                         state['accepted_proposal_val'], state['accepted_client_info'], state_backup)
     learner = Learner(server_id, quorum, state['decided_log'], state_backup)
+    #
+    view = state['view']
 
-    view = 0
     num_acceptors = num_server
 
     HOST = servers_list[server_id]['host']                 # Symbolic name meaning all available interfaces
@@ -105,6 +107,12 @@ def server(server_id, config_file = '../config/servers.yaml'):
         if msg['type'] == 'request':
            if msg['resend_idx'] != 0:
               #if this is an resent message, triger view change
+
+              # save updated state first
+              state = load_state(state_backup)
+              state['view'] = view + 1
+              save_state(state_backup, state)
+
               view += 1
               
               #new leader clears the request queue 
@@ -191,6 +199,13 @@ def server(server_id, config_file = '../config/servers.yaml'):
                     proposer.propose(proposal_pack)
                 proposer.need_prepare = False
         elif msg['type'] == 'prepare':
+            # save updated state first
+            state = load_state(state_backup)
+            state['view'] = max(view, msg['proposal_id'])
+            save_state(state_backup, state)
+
+            view = max(view, msg['proposal_id'])  # update to most recent view
+            print_message("change to max view %s" % (str(view)))
             acceptor.promise(msg)
 
         elif msg['type'] == 'propose':
