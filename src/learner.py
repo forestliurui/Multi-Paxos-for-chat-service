@@ -3,7 +3,7 @@ This is the Learner class
 """
 
 from state_backup import save_state, load_state, get_state_backup
-from my_logging import MyLogging
+from my_logging import MyLogging, FileLogging
 from messenger_class import Messenger
 
 class Slot(object):
@@ -47,7 +47,8 @@ class Learner(object):
          self.maxCount = 0
          self.valForMaxCount = None
          self.quorum = quorum
-         self.learner_id = server_id        
+         self.learner_id = server_id
+         self.file_logger = FileLogging(server_id)
 
          self.msg_collection = {}
          self.proposal_id = None 
@@ -122,6 +123,6 @@ class Learner(object):
               self.executed_log[next_unexecuted_slot_idx] = self.decided_log[next_unexecuted_slot_idx]
               next_unexecuted_slot_idx += 1
          MyLogging.info("learner id %s executed values: %s"%(str(self.learner_id), str(self.executed_log)))
+         self.file_logger.info("learner id %s executed values: %s" % (str(self.learner_id), str(self.executed_log)))
          MyLogging.info("learner id %s executed hash: %s"%(str(self.learner_id), str(hash(tuple(self.executed_log.items()))  )))
-
-
+         self.file_logger.info("learner id %s executed hash: %s"%(str(self.learner_id), str(hash(tuple(self.executed_log.items()))  )))
