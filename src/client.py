@@ -9,19 +9,16 @@ from my_logging import MyLogging
 
 timeout = 20
 
-def client(client_idx, config_file_server = None):
+def client(client_idx, config_file_server = '../config/servers.yaml'):
 
     host_name = 'bigdata.eecs.umich.edu'
     clients_list = {idx:{'host': host_name, 'port': 40000+idx} for idx in range(5)} 
 
-    if config_file_server is not None:
-        with open(config_file_server, 'r') as config_handler:
-            config = yaml.load(config_handler)
-        f = int(config['f']) #the number of failure that can be tolerated
-        num_server = 2*f + 1
-        servers_list = { server_idx: config['servers_list'][server_idx] for server_idx in range(num_server)}
-    else:
-        servers_list = {idx:{'host': host_name, 'port': 50000+idx} for idx in range(50)}
+    with open(config_file_server, 'r') as config_handler:
+        config = yaml.load(config_handler)
+    f = int(config['f']) #the number of failure that can be tolerated
+    num_server = 2*f + 1
+    servers_list = { server_idx: config['servers_list'][server_idx] for server_idx in range(num_server)}
       
     client_idx = int(client_idx)
     client_host = clients_list[client_idx]['host']
