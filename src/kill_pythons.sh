@@ -13,3 +13,5 @@ kill -9 `ps  -u ${user} |grep python |awk '{print $1}'`
 
 # delete state backup
 rm ../state_backup/*
+
+rm ../result/*
