@@ -3,7 +3,8 @@ This is the class for acceptor
 """
 import socket
 from messenger import sendMsg
-from messenger import print_message
+# from messenger import MyLogging.info
+from my_logging import MyLogging
 from state_backup import save_state, load_state, get_state_backup
 
 class Acceptor(object):
