@@ -2,10 +2,9 @@
 This is the Learner class
 """
 
-from messenger import sendMsg
-# from messenger import MyLogging.info
 from state_backup import save_state, load_state, get_state_backup
 from my_logging import MyLogging
+from messenger_class import Messenger
 
 class Slot(object):
      def __init__(self, slot_idx, quorum):
@@ -39,7 +38,8 @@ class Slot(object):
 
 
 class Learner(object):
-     def __init__(self, server_id, quorum, decided_log, state_backup, log = None):
+     def __init__(self, server_id, quorum, decided_log, state_backup, loss_rate, log = None):
+         self.messenger = Messenger(loss_rate)
          self.decided_log = decided_log
          self.state_backup = state_backup
          self.executed_log = {}
@@ -107,7 +107,7 @@ class Learner(object):
             client_seq = client_info['clt_seq_num']
             self.decided_clt_seq[client_id] = client_seq
             msg = {'type': 'ack', 'val': decided_val, 'client_info': client_info}
-            sendMsg(client_host, client_port, msg)
+            self.messenger.send_msg(client_host, client_port, msg)
          MyLogging.info("==========================learner id %s decide the value: %s"%(str(self.learner_id),str(decided_val)))
          MyLogging.info("++++++++++++++++++++++++++learner id %s decide values:"%(str(self.learner_id)))
          MyLogging.info(self.decided_log)

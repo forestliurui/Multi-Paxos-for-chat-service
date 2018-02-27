@@ -2,13 +2,13 @@
 This is the class for acceptor
 """
 import socket
-from messenger import sendMsg
-# from messenger import MyLogging.info
 from my_logging import MyLogging
 from state_backup import save_state, load_state, get_state_backup
+from messenger_class import Messenger
 
 class Acceptor(object):
-     def __init__(self, server_id, servers_list, promised_proposal_id, accepted_proposal_id, accepted_proposal_val, accepted_client_info, state_backup):
+     def __init__(self, server_id, servers_list, promised_proposal_id, accepted_proposal_id, accepted_proposal_val, accepted_client_info, state_backup, loss_rate):
+         self.messenger = Messenger(loss_rate)
          self.server_id = server_id
          self.proposers_list = dict(servers_list)
          #if self.server_id == 0:
@@ -40,7 +40,7 @@ class Acceptor(object):
             host = self.proposers_list[proposer_id]['host'] 
             port = self.proposers_list[proposer_id]['port']
 
-            sendMsg(host, port, reply_msg)
+            self.messenger.send_msg(host, port, reply_msg)
 
      def accept(self, recvd_msg):
          if self.promised_proposal_id is None or recvd_msg['proposal_id'] >= self.promised_proposal_id:
@@ -67,5 +67,5 @@ class Acceptor(object):
              host = self.learners_list[learner_id]['host']
              port = self.learners_list[learner_id]['port']
          
-             sendMsg(host, port, msg)
+             self.messenger.send_msg(host, port, msg)
 

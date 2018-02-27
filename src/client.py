@@ -3,9 +3,10 @@ import socket
 import pickle
 import yaml
 
-from messenger import sendMsg
+# from messenger import sendMsg
 # from messenger import MyLogging.info
 from my_logging import MyLogging
+from messenger_class import Messenger
 
 timeout = 20
 
@@ -19,6 +20,9 @@ def client(client_idx, config_file_server = '../config/servers.yaml'):
     f = int(config['f']) #the number of failure that can be tolerated
     num_server = 2*f + 1
     servers_list = { server_idx: config['servers_list'][server_idx] for server_idx in range(num_server)}
+    loss_rate = config['msg_drop_rate']
+
+    my_messenger = Messenger(loss_rate)
       
     client_idx = int(client_idx)
     client_host = clients_list[client_idx]['host']
@@ -38,7 +42,8 @@ def client(client_idx, config_file_server = '../config/servers.yaml'):
                 host = servers_list[server_id]['host']
                 port = servers_list[server_id]['port']
     
-                sendMsg(host, port, msg) 
+                # sendMsg(host, port, msg)
+                my_messenger.send_msg(host, port, msg)
             
             if waitForAck(client_host, client_port, timeout, clt_seq_num) is True:
                break

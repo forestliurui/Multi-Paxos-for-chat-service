@@ -4,31 +4,32 @@ This is the proposer class
 import socket
 import pickle
 
-from messenger import sendMsg
-# from messenger import MyLogging.info
 from my_logging import MyLogging
 #need to make sure the acceptors_list doesn't include itself
+from messenger_class import Messenger
+
 
 class Proposer(object):
-    def  __init__(self, server_id, servers_list):
-         self.server_id = server_id
-         self.acceptors_list = dict(servers_list)
+    def __init__(self, server_id, servers_list, loss_rate):
+        self.messenger = Messenger(loss_rate)
+        self.server_id = server_id
+        self.acceptors_list = dict(servers_list)
 
-         #if self.server_id == 0:
-         #   import pdb;pdb.set_trace()
-         #remove itself from the acceptors list, because it doesn't need to communicate with itself
-         #del self.acceptors_list[self.server_id]
-         self.quorum = len(self.acceptors_list)/2 + 1  
+        #if self.server_id == 0:
+        #   import pdb;pdb.set_trace()
+        #remove itself from the acceptors list, because it doesn't need to communicate with itself
+        #del self.acceptors_list[self.server_id]
+        self.quorum = len(self.acceptors_list)/2 + 1
          
-         self.proposal_id = None
-         self.proposal_count = {}
-         self.msg_collection = {}
+        self.proposal_id = None
+        self.proposal_count = {}
+        self.msg_collection = {}
 
-         self.proposed_id = None
+        self.proposed_id = None
 
-         self.next_slot = 0 #the slot for next client request
+        self.next_slot = 0 #the slot for next client request
 
-         self.need_prepare = True
+        self.need_prepare = True
 
     def prepare(self, proposal_id):
         #propose_id is always increasing
@@ -37,7 +38,7 @@ class Proposer(object):
         for acceptor_id in self.acceptors_list:
             host = self.acceptors_list[acceptor_id]['host']
             port = self.acceptors_list[acceptor_id]['port']
-            sendMsg(host, port, msg)
+            self.messenger.send_msg(host, port, msg)
 
     def addVote(self, msg): 
         proposal_id = msg['proposal_id']
@@ -137,5 +138,5 @@ class Proposer(object):
               host = self.acceptors_list[acceptor_id]['host']
               port = self.acceptors_list[acceptor_id]['port']
 
-              sendMsg(host, port, msg)
+              self.messenger.send_msg(host, port, msg)
 

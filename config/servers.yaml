@@ -8,6 +8,8 @@ x: -1
 
 num_failed_primary: -1
 
+msg_drop_rate: 0
+
 servers_list:
    0:
       host: bigdata.eecs.umich.edu

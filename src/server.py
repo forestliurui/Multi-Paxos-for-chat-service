@@ -58,12 +58,11 @@ def server(server_id, config_file = '../config/servers.yaml'):
         print "Recovering server"
         state = load_state(state_backup)
 
-    # state = load_state(state_backup)
-
-    proposer = Proposer(server_id, servers_list)
+    loss_rate = config['msg_drop_rate']
+    proposer = Proposer(server_id, servers_list, loss_rate)
     acceptor = Acceptor(server_id, servers_list, state['promised_proposal_id'], state['accepted_proposal_id'],
-                        state['accepted_proposal_val'], state['accepted_client_info'], state_backup)
-    learner = Learner(server_id, quorum, state['decided_log'], state_backup)
+                        state['accepted_proposal_val'], state['accepted_client_info'], state_backup, loss_rate)
+    learner = Learner(server_id, quorum, state['decided_log'], state_backup, loss_rate)
     #
     view = state['view']
 
