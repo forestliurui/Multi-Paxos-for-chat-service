@@ -10,8 +10,8 @@ timeout = 20
 
 def client(client_idx, config_file_server = '../config/servers.yaml'):
 
-    host_name = 'bigdata.eecs.umich.edu'
-    clients_list = {idx:{'host': host_name, 'port': 40000+idx} for idx in range(5)} 
+    host_name = 'localhost'
+    clients_list = {idx:{'host': host_name, 'port': 40000+idx} for idx in range(10)} 
 
     with open(config_file_server, 'r') as config_handler:
         config = yaml.load(config_handler)
@@ -40,14 +40,15 @@ def client(client_idx, config_file_server = '../config/servers.yaml'):
                 host = servers_list[server_id]['host']
                 port = servers_list[server_id]['port']
     
-                # sendMsg(host, port, msg)
+                # send msg to (host, port)
                 my_messenger.send_msg(host, port, msg)
             
             if waitForAck(client_host, client_port, timeout, clt_seq_num) is True:
                break
-            #elif resend_idx == resend_max-1:
-            #   MyLogging.debug('give up on request_idx %s due to timeout on max resend times'%(str(request_idx)))
+
             resend_idx += 1
+
+    MyLogging.info('client %s finished sending all %s requests'%(str(client_idx), str(len(request_list)) )) 
 
 def waitForAck(client_host, client_port, timeout, clt_seq_num):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -75,25 +76,7 @@ def waitForAck(client_host, client_port, timeout, clt_seq_num):
            MyLogging.debug('client %s received ack for request (clt seq num) %s'%(str(msg['client_info']['client_id']), str(msg['client_info']['clt_seq_num'])) )
            return True
 
-
-    
-
-
-
-    """
-    note that the ack might means the committed value is different from its requested value
-    need to make sure how to handle this
-    """
-    #if msg['type'] == 'ack' and msg['client_info']['clt_seq_num'] == clt_seq_num:
-    #   MyLogging.debug('client %s received ack for request (clt seq num) %s'%(str(msg['client_info']['client_id']), str(msg['client_info']['clt_seq_num'])) )
-    #   return True
-    #else:
-    #   return False
-
-
 if __name__ == "__main__":
-    #client(0)
-
     from optparse import OptionParser, OptionGroup
 
     parser = OptionParser(usage = "Usage!")
