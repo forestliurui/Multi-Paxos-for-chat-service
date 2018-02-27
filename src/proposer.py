@@ -114,7 +114,7 @@ class Proposer(object):
             last_slot_accepted_val = max(accepted_val_with_largest_id.keys())
        
         self.next_slot = max( last_slot_decided_log, last_slot_accepted_val ) + 1
-        MyLogging.info("reset next slot to be %s"%(str(self.next_slot)))
+        MyLogging.debug("reset next slot to be %s"%(str(self.next_slot)))
         proposal_pack_for_holes = {}
         for slot_idx in range(self.next_slot-1, -1, -1):
             if slot_idx in accepted_val_with_largest_id:

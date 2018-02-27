@@ -19,7 +19,7 @@ class Messenger(object):
 
         # if  msg['type'] != 'request': 
         if self.message_loss() is True:
-            MyLogging.info("DROP: " + str(msg))
+            MyLogging.debug("DROP: " + str(msg))
 
             return
 
@@ -27,14 +27,14 @@ class Messenger(object):
         try:
             s.connect((host, port))
         except socket.error:
-            MyLogging.info("listening port closed, ignore this msg")
+            MyLogging.debug("listening port closed, ignore this msg")
             return
-        MyLogging.info("SEND: " + str(msg))
+        MyLogging.debug("SEND: " + str(msg))
 
         try:
             s.sendall(pickle.dumps(msg))
         except socket.error:
-            MyLogging.info("try to resend due to socket error")
+            MyLogging.debug("try to resend due to socket error")
             time.sleep(0.1)
             s.sendall(pickle.dumps(msg))
 

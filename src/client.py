@@ -3,8 +3,6 @@ import socket
 import pickle
 import yaml
 
-# from messenger import sendMsg
-# from messenger import MyLogging.info
 from my_logging import MyLogging
 from messenger_class import Messenger
 
@@ -48,7 +46,7 @@ def client(client_idx, config_file_server = '../config/servers.yaml'):
             if waitForAck(client_host, client_port, timeout, clt_seq_num) is True:
                break
             #elif resend_idx == resend_max-1:
-            #   MyLogging.info('give up on request_idx %s due to timeout on max resend times'%(str(request_idx)))
+            #   MyLogging.debug('give up on request_idx %s due to timeout on max resend times'%(str(request_idx)))
             resend_idx += 1
 
 def waitForAck(client_host, client_port, timeout, clt_seq_num):
@@ -58,23 +56,23 @@ def waitForAck(client_host, client_port, timeout, clt_seq_num):
     
 
     while True:
-       MyLogging.info('set timeout for %s s'%str(timeout))
+       MyLogging.debug('set timeout for %s s'%str(timeout))
        s.settimeout(timeout)
-       MyLogging.info("wwwwwwwwwwwwwwwait for ack")
+       MyLogging.debug("wwwwwwwwwwwwwwwait for ack")
        try: 
           conn, addr = s.accept()
        except socket.timeout:
-          MyLogging.info("timeout on ack")
+          MyLogging.debug("timeout on ack")
           return False
-       MyLogging.info('Connected by '+str( addr))
+       MyLogging.debug('Connected by '+str( addr))
        data = conn.recv(4096*2)
        msg = pickle.loads(data)
-       MyLogging.info('RCVD: '+str(msg))
+       MyLogging.debug('RCVD: '+str(msg))
        conn.close()
 
        #wait for the right clt_seq_num
        if msg['type'] == 'ack' and msg['client_info']['clt_seq_num'] == clt_seq_num:
-           MyLogging.info('client %s received ack for request (clt seq num) %s'%(str(msg['client_info']['client_id']), str(msg['client_info']['clt_seq_num'])) )
+           MyLogging.debug('client %s received ack for request (clt seq num) %s'%(str(msg['client_info']['client_id']), str(msg['client_info']['clt_seq_num'])) )
            return True
 
 
@@ -87,7 +85,7 @@ def waitForAck(client_host, client_port, timeout, clt_seq_num):
     need to make sure how to handle this
     """
     #if msg['type'] == 'ack' and msg['client_info']['clt_seq_num'] == clt_seq_num:
-    #   MyLogging.info('client %s received ack for request (clt seq num) %s'%(str(msg['client_info']['client_id']), str(msg['client_info']['clt_seq_num'])) )
+    #   MyLogging.debug('client %s received ack for request (clt seq num) %s'%(str(msg['client_info']['client_id']), str(msg['client_info']['clt_seq_num'])) )
     #   return True
     #else:
     #   return False

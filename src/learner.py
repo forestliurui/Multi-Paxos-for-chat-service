@@ -108,9 +108,9 @@ class Learner(object):
             self.decided_clt_seq[client_id] = client_seq
             msg = {'type': 'ack', 'val': decided_val, 'client_info': client_info}
             self.messenger.send_msg(client_host, client_port, msg)
-         MyLogging.info("==========================learner id %s decide the value: %s"%(str(self.learner_id),str(decided_val)))
-         MyLogging.info("++++++++++++++++++++++++++learner id %s decide values:"%(str(self.learner_id)))
-         MyLogging.info(self.decided_log)
+         MyLogging.debug("==========================learner id %s decide the value: %s"%(str(self.learner_id),str(decided_val)))
+         MyLogging.debug("++++++++++++++++++++++++++learner id %s decide values:"%(str(self.learner_id)))
+         MyLogging.debug(self.decided_log)
          self.execute()
  
      def execute(self):
@@ -121,7 +121,7 @@ class Learner(object):
          while next_unexecuted_slot_idx in self.decided_log:
               self.executed_log[next_unexecuted_slot_idx] = self.decided_log[next_unexecuted_slot_idx]
               next_unexecuted_slot_idx += 1
-         MyLogging.info("<<<<<<<<<<<<<<<<<<<<<<learner id %s executed values: %s"%(str(self.learner_id), str(self.executed_log)))
-         MyLogging.info("<<<<<<<<<<<<<<<<<<<<<<learner id %s executed hash: %s"%(str(self.learner_id), str(hash(tuple(self.executed_log.items()))  )))
+         MyLogging.info("learner id %s executed values: %s"%(str(self.learner_id), str(self.executed_log)))
+         MyLogging.info("learner id %s executed hash: %s"%(str(self.learner_id), str(hash(tuple(self.executed_log.items()))  )))
 
 
