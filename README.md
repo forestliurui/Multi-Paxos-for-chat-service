@@ -7,11 +7,12 @@ This project contains a Python implementation of the Multi-Paxos for replicated 
 We also implemented the recovery mechanism using stable storage. Each server process will automatically write its relevant status into file in disk. When we restart it after its crash, it will automatiicaly restore status from disk and keep running.
 
 ## Contents
-directory src contains the source code
-directory config contains the configuration files for different test cases
+* directory src/ contains the source code
+* directory config/ contains the configuration files for different test cases
+* directory state_backup/ contains the backup files that are used for recovery in case of server crash
 
 ## How to Use
-Make sure you are under the /src directory before you try to run any of the following commands
+Make sure you are under the src/ directory before you try to run any of the following commands
 ### Script mode 
 To run servers:
 ```bash
@@ -41,7 +42,7 @@ bash kill_pythons.sh
 ```
 
 ### To recover
-To recover a server process after its crash, just use the same comand to run the server:
+To recover a server process after its crash, just restart it, i.e. use the same comand that is used to run the server. After restart, the server process will check the backup file in the disk and store status from it.
 ```bash
 python server.py server_id path_to_config_file
 ```
