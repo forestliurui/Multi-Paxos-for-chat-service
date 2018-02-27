@@ -5,6 +5,8 @@ This is the Learner class
 from state_backup import save_state, load_state, get_state_backup
 from my_logging import MyLogging, FileLogging
 from messenger_class import Messenger
+import yaml
+import os
 
 class Slot(object):
      def __init__(self, slot_idx, quorum):
@@ -126,3 +128,15 @@ class Learner(object):
          self.file_logger.info("learner id %s executed values: %s" % (str(self.learner_id), str(self.executed_log)))
          MyLogging.info("learner id %s executed hash: %s"%(str(self.learner_id), str(hash(tuple(self.executed_log.items()))  )))
          self.file_logger.info("learner id %s executed hash: %s"%(str(self.learner_id), str(hash(tuple(self.executed_log.items()))  )))
+
+         result_file = '../result/{}.yml'.format(self.learner_id)
+         tmp = result_file + '.tmp'
+         with open(tmp, 'w') as f:
+             yaml.dump(dict(
+                 learner_id=self.learner_id,
+                 executed_log=self.executed_log,
+                 executed_hash=hash(tuple(self.executed_log.items()))
+             ), f)  # , default_flow_style=False)
+             f.flush()
+             os.fsync(f.fileno())
+         os.rename(tmp, result_file)
