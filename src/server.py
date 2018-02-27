@@ -13,6 +13,7 @@ from learner import Learner
 # from messenger import MyLogging.info
 from state_backup import save_state, load_state, get_state_backup
 from my_logging import MyLogging
+from subprocess import call
 
 crash_rate = 0
 
@@ -29,6 +30,9 @@ def server(server_id, config_file = '../config/servers.yaml'):
     f = int(config['f']) #the number of failure that can be tolerated
 
     state_backup_folder = config['state_backup_folder']
+    if not os.path.exists(state_backup_folder):
+        # os.makedirs(state_backup_folder)
+        call(['mkdir', '-p', state_backup_folder])
 
     num_server = 2*f + 1
 
