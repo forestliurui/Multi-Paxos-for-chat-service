@@ -11,14 +11,8 @@ class Acceptor(object):
          self.messenger = Messenger(loss_rate)
          self.server_id = server_id
          self.proposers_list = dict(servers_list)
-         #if self.server_id == 0:
-         #   import pdb;pdb.set_trace()
-         #remove itself from the acceptors list, because it doesn't need to communicate with itself
-         #del self.proposers_list[self.server_id]
          self.learners_list = self.proposers_list
 
-         #self.host = host
-         #self.port = port
          self.promised_proposal_id = promised_proposal_id
          self.accepted_proposal_id = accepted_proposal_id #map from slot_idx to proposal_id
          self.accepted_proposal_val = accepted_proposal_val #map from slot_idx to accepted_val

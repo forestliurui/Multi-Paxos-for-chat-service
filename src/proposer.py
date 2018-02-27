@@ -5,9 +5,7 @@ import socket
 import pickle
 
 from my_logging import MyLogging
-#need to make sure the acceptors_list doesn't include itself
 from messenger_class import Messenger
-
 
 class Proposer(object):
     def __init__(self, server_id, servers_list, loss_rate):
@@ -15,10 +13,6 @@ class Proposer(object):
         self.server_id = server_id
         self.acceptors_list = dict(servers_list)
 
-        #if self.server_id == 0:
-        #   import pdb;pdb.set_trace()
-        #remove itself from the acceptors list, because it doesn't need to communicate with itself
-        #del self.acceptors_list[self.server_id]
         self.quorum = len(self.acceptors_list)/2 + 1
          
         self.proposal_id = None
@@ -52,8 +46,6 @@ class Proposer(object):
  
         self.proposal_count[proposal_id][acceptor_id] = True
 
-     
-
         if proposal_id not in self.msg_collection:
            self.msg_collection[proposal_id] = []
         self.msg_collection[proposal_id].append(msg) 
@@ -84,7 +76,7 @@ class Proposer(object):
         return proposal_pack
            
 
-    def getProposalPackForHoles(self, decided_log):
+    def getProposalPack(self, decided_log):
         #for all previous accepted values, not only for holes(need to change the name)
         msg_list = self.msg_collection[self.proposal_id]
         largest_accepted_id = {} #map from slot_idx to proposal_id
