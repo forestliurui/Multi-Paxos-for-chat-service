@@ -5,12 +5,18 @@ by Rui Liu (ruixliu@umich.edu) and Changfeng Liu (changfel@umich.edu)
 ## Overview
 This project contains a Python implementation of the Multi-Paxos for replicated chat service. Clients connect to service and send chat messages. The Multi-Paxos based service is like a state-machine replication, where messages will be replicated on several different replicas or servers. 
 
-We also implemented the recovery mechanism using stable storage. Each server process will automatically write its relevant status into file in disk. When we restart it after its crash, it will automatiicaly restore status from disk and keep running.
+We also implemented the recovery mechanism using stable storage. Each server process will automatically write its relevant status into file in disk. When we restart it after its crash, it will automatiicaly restore status from disk and continue to run.
+
+Note that we let all the outgoing messages to delay for between 0 and 1 second randomly. It is a way to simulate the communication delay in distributed system. 
 
 ## Contents
 * directory src/ contains the source code
 * directory config/ contains the configuration files for different test cases
 * directory state_backup/ contains the backup files that are used for recovery in case of server crash
+* directory log/ contains the running log during the running time
+* directory result/ contains the most recent sequence of executed commands or messages requested by clients. This can be used to check the consistency of state machines. 
+
+The last three directories may be empty at the very beginning. Contents will be added to them as the program starts to run.
 
 ## How to Use
 Make sure you are under the src/ directory before you try to run any of the following commands
@@ -49,10 +55,13 @@ To recover a server process after its crash, just restart it, i.e. use the same 
 python server.py server_id path_to_config_file
 ```
 
+### To check consistency
+You can look at the log info either on screen or logs files under log/ directory. Please look for executed values and executed hash, which are the executed commands/chat logs and their hashes. 
+
 ## Test Cases
 We use different config files for different test cases.
 ### Test case 1: normal operation
-The hash value of the chat logs, i.e. executed log in our code will be printed on screen. 
+The hash value of the chat logs, i.e. executed log in our code, together with the logs themselves, will be printed on screen. 
 ```bash
 python server.py server_id ../config/servers_test1.yaml
 bash start_clients.sh num_clients ../config/servers_test1.yaml
