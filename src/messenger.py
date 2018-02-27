@@ -8,7 +8,7 @@ import datetime
 import time
 import numpy as np
 
-loss_rate = 0.2
+loss_rate = 0
 
 def sendMsg(host, port, msg):
     delay = np.random.rand()

@@ -4,11 +4,11 @@ state_backup_folder: ../state_backup
 
 f: 1
 
-x: 3
+x: -1
 
 num_failed_primary: -1
 
-msg_drop_rate: 0
+msg_drop_rate: 0.05
 
 servers_list:
    0:
