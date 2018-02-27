@@ -59,7 +59,7 @@ def server(server_id, config_file = '../config/servers.yaml'):
             )
         save_state(state_backup, state)
     else:
-        print "Recovering server"
+        MyLogging.info("Recovering server")
         state = load_state(state_backup)
 
     loss_rate = config['msg_drop_rate']
