@@ -10,10 +10,13 @@ import os
 from proposer import Proposer
 from acceptor import Acceptor
 from learner import Learner
-from messenger import print_message
+# from messenger import MyLogging.info
 from state_backup import save_state, load_state, get_state_backup
+from my_logging import MyLogging
 
 crash_rate = 0
+
+
 
 def server(server_id, config_file = '../config/servers.yaml'):
 
@@ -97,12 +100,12 @@ def server(server_id, config_file = '../config/servers.yaml'):
         if view%num_acceptors == server_id:
            server_crash(server_id, crash_rate)
 
-        print_message("wait for connection")
+        MyLogging.info("wait for connection")
         conn, addr = s.accept()
-        print_message('Connection by '+str(addr))
+        MyLogging.info('Connection by '+str(addr))
         data = conn.recv(4096*2)
         msg = pickle.loads(data)      
-        print_message('RCVD: '+str(msg))
+        MyLogging.info('RCVD: '+str(msg))
 
         if msg['type'] == 'request':
            if msg['resend_idx'] != 0:
@@ -120,14 +123,14 @@ def server(server_id, config_file = '../config/servers.yaml'):
               client_info_queue.clear()
 
               proposer.need_prepare = True
-              print_message("change to view %s"%(str(view)))
+              MyLogging.info("change to view %s"%(str(view)))
            if view%num_acceptors == server_id:
                 #this is leader
 
                 #testcase3(server_id, msg, view)
                 if num_failed_primary is not None and server_id < num_failed_primary:
-                     print_message("force the primary %s to crash"%(str(server_id)))
-                     print_message("!!!!!!!!!!!!!!!!server id %s crashes"%(str(server_id)))
+                     MyLogging.info("force the primary %s to crash"%(str(server_id)))
+                     MyLogging.info("!!!!!!!!!!!!!!!!server id %s crashes"%(str(server_id)))
                      exit()
 
 
@@ -135,8 +138,8 @@ def server(server_id, config_file = '../config/servers.yaml'):
                 #testcase 4
                 if x is not None and x+1 in learner.decided_log and server_skip == server_id:
                      #server_skip = server_id
-                     print_message('server id %s has learned slot %s'%(str(server_id), str(x+1)))
-                     print_message("!!!!!!!!!!!!!!!!server id %s crashes"%(str(server_id)))
+                     MyLogging.info('server id %s has learned slot %s'%(str(server_id), str(x+1)))
+                     MyLogging.info("!!!!!!!!!!!!!!!!server id %s crashes"%(str(server_id)))
                      exit()
 
                 request_val_queue.append( msg['request_val'] )
@@ -149,8 +152,8 @@ def server(server_id, config_file = '../config/servers.yaml'):
         
                 else: #directly propose without prepare stage
                     proposal_pack = {}
-                    print_message("no need to prepare")
-                    print_message(request_val_queue)
+                    MyLogging.info("no need to prepare")
+                    MyLogging.info(request_val_queue)
                   
 
                     #server_crash_on_msg(server_id, msg)     
@@ -164,8 +167,8 @@ def server(server_id, config_file = '../config/servers.yaml'):
 
                     #testcase 4
                     if x is not None and x in proposal_pack and server_skip == server_id:
-                         print_message('At slot %s: %s'%(str(x), str(proposal_pack[x])))
-                         print_message('proposer %s skips slot %s for server_skip %s'%(str(server_id), str(x), str(server_skip)))
+                         MyLogging.info('At slot %s: %s'%(str(x), str(proposal_pack[x])))
+                         MyLogging.info('proposer %s skips slot %s for server_skip %s'%(str(server_id), str(x), str(server_skip)))
                          del proposal_pack[x]        
 
                     proposer.propose(proposal_pack, without_prepare = True)
@@ -184,7 +187,7 @@ def server(server_id, config_file = '../config/servers.yaml'):
              if proposer.checkQuorumSatisfied() is True:
                 if proposer.need_prepare is True:
                     proposal_pack = proposer.getProposalPackForHoles(learner.getDecidedLog())
-                    print_message("proposal pack for holes: %s"%(str(proposal_pack)))
+                    MyLogging.info("proposal pack for holes: %s"%(str(proposal_pack)))
                     for _ in range(len(request_val_queue)):
                         request_val = request_val_queue.popleft()
                         client_info = client_info_queue.popleft()
@@ -192,8 +195,8 @@ def server(server_id, config_file = '../config/servers.yaml'):
 
                     #testcase 4
                     if x is not None and x in proposal_pack and server_skip == server_id:
-                         print_message('At slot %s: %s'%(str(x), str(proposal_pack[x])))
-                         print_message('proposer %s skips slot %s for server_skip %s'%(str(server_id), str(x), str(server_skip)))
+                         MyLogging.info('At slot %s: %s'%(str(x), str(proposal_pack[x])))
+                         MyLogging.info('proposer %s skips slot %s for server_skip %s'%(str(server_id), str(x), str(server_skip)))
                          del proposal_pack[x]
 
                     proposer.propose(proposal_pack)
@@ -205,7 +208,7 @@ def server(server_id, config_file = '../config/servers.yaml'):
             save_state(state_backup, state)
 
             view = max(view, msg['proposal_id'])  # update to most recent view
-            print_message("change to max view %s" % (str(view)))
+            MyLogging.info("change to max view %s" % (str(view)))
             acceptor.promise(msg)
 
         elif msg['type'] == 'propose':
@@ -220,36 +223,36 @@ def server(server_id, config_file = '../config/servers.yaml'):
         conn.close()
 
 def testcase2(server_id, msg):
-    print_message("This is test case 2")
+    MyLogging.info("This is test case 2")
     server_crash_on_msg(server_id, msg)
 
 def testcase3(server_id, msg, view):
-    print_message("This is test case 3")
+    MyLogging.info("This is test case 3")
     #primary dies
     server_crash_on_msg(server_id, msg)
 
     #new primary dies again
     if view == 1:
-       print_message("!!!!!!!!!!!!!!!!server id %s crashes"%(str(server_id)))
+       MyLogging.info("!!!!!!!!!!!!!!!!server id %s crashes"%(str(server_id)))
        exit()
 
 def testcase4(msg, proposer):
-    print_message("This is test case 4")
+    MyLogging.info("This is test case 4")
     if skipSlot(msg):
-        print_message("skip slot %s"%(str(proposer.next_slot)))
+        MyLogging.info("skip slot %s"%(str(proposer.next_slot)))
         proposer.next_slot += 1
 
 
 def server_crash_on_msg(server_id, msg):
     client_info = msg['client_info']
     if client_info['client_id'] == 0  and client_info['clt_seq_num'] == 2 and msg['resend_idx'] == 0:
-       print_message("!!!!!!!!!!!!!!!!server id %s crashes"%(str(server_id)))
+       MyLogging.info("!!!!!!!!!!!!!!!!server id %s crashes"%(str(server_id)))
        exit()
 
 
 def server_crash(server_id, crash_rate):
     if np.random.rand() < crash_rate:
-       print_message("!!!!!!!!!!!!!!!!server id %s crashes"%(str(server_id)))
+       MyLogging.info("!!!!!!!!!!!!!!!!server id %s crashes"%(str(server_id)))
        exit()
 
 def forceViewChange(msg):

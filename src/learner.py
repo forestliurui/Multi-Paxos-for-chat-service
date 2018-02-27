@@ -3,8 +3,9 @@ This is the Learner class
 """
 
 from messenger import sendMsg
-from messenger import print_message
+# from messenger import MyLogging.info
 from state_backup import save_state, load_state, get_state_backup
+from my_logging import MyLogging
 
 class Slot(object):
      def __init__(self, slot_idx, quorum):
@@ -107,9 +108,9 @@ class Learner(object):
             self.decided_clt_seq[client_id] = client_seq
             msg = {'type': 'ack', 'val': decided_val, 'client_info': client_info}
             sendMsg(client_host, client_port, msg)
-         print_message("==========================learner id %s decide the value: %s"%(str(self.learner_id),str(decided_val)))
-         print_message("++++++++++++++++++++++++++learner id %s decide values:"%(str(self.learner_id)))
-         print_message(self.decided_log)
+         MyLogging.info("==========================learner id %s decide the value: %s"%(str(self.learner_id),str(decided_val)))
+         MyLogging.info("++++++++++++++++++++++++++learner id %s decide values:"%(str(self.learner_id)))
+         MyLogging.info(self.decided_log)
          self.execute()
  
      def execute(self):
@@ -120,7 +121,7 @@ class Learner(object):
          while next_unexecuted_slot_idx in self.decided_log:
               self.executed_log[next_unexecuted_slot_idx] = self.decided_log[next_unexecuted_slot_idx]
               next_unexecuted_slot_idx += 1
-         print_message("<<<<<<<<<<<<<<<<<<<<<<learner id %s executed values: %s"%(str(self.learner_id), str(self.executed_log)))
-         print_message("<<<<<<<<<<<<<<<<<<<<<<learner id %s executed hash: %s"%(str(self.learner_id), str(hash(tuple(self.executed_log.items()))  )))
+         MyLogging.info("<<<<<<<<<<<<<<<<<<<<<<learner id %s executed values: %s"%(str(self.learner_id), str(self.executed_log)))
+         MyLogging.info("<<<<<<<<<<<<<<<<<<<<<<learner id %s executed hash: %s"%(str(self.learner_id), str(hash(tuple(self.executed_log.items()))  )))
 
 

@@ -5,7 +5,8 @@ import socket
 import pickle
 
 from messenger import sendMsg
-from messenger import print_message
+# from messenger import MyLogging.info
+from my_logging import MyLogging
 #need to make sure the acceptors_list doesn't include itself
 
 class Proposer(object):
@@ -112,7 +113,7 @@ class Proposer(object):
             last_slot_accepted_val = max(accepted_val_with_largest_id.keys())
        
         self.next_slot = max( last_slot_decided_log, last_slot_accepted_val ) + 1
-        print_message("reset next slot to be %s"%(str(self.next_slot)))
+        MyLogging.info("reset next slot to be %s"%(str(self.next_slot)))
         proposal_pack_for_holes = {}
         for slot_idx in range(self.next_slot-1, -1, -1):
             if slot_idx in accepted_val_with_largest_id:
