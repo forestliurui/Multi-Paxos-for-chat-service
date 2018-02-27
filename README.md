@@ -1,5 +1,6 @@
 # Multi-Paxos for chat service
 
+by Rui Liu (ruixliu@umich.edu) and Changfeng Liu (changfel@umich.edu)
 
 ## Overview
 This project contains a Python implementation of the Multi-Paxos for replicated chat service. Clients connect to service and send chat messages. The Multi-Paxos based service is like a state-machine replication, where messages will be replicated on several different replicas or servers. 
@@ -40,6 +41,7 @@ To stop all python processes, including servers and clients
 ```bash
 bash kill_pythons.sh
 ```
+Note that, as a side effect, the users may not need to pay attention, the above command will also clear all the backup files. 
 
 ### To recover
 To recover a server process after its crash, just restart it, i.e. use the same comand that is used to run the server. After restart, the server process will check the backup file in the disk and store status from it.
