@@ -2,9 +2,9 @@
 
 state_backup_folder: ../state_backup
 
-f: 1
+f: 2
 
-x: 3
+x: -1
 
 num_failed_primary: -1
 
